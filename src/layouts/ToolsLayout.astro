@@ -3,7 +3,7 @@ import { SITE, type buildMeta as BuildMetaFn } from '@/consts';
 import Head from '../components/Head.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import ToastContainer from '@/app/components/ui/ToastContainer';
+import Toast from '@/app/components/ui/Toast';
 import Sidebar from '@/app/components/sidebar/Sidebar.astro';
 
 interface Props {
@@ -52,6 +52,6 @@ const sidebarState = Astro.cookies.get('sidebar_state')?.value || 'expanded';
       </main>
     </div>
     {!hideFooter && (<Footer />)}
-    <ToastContainer client:only="react" />
+    <Toast client:only="react" />
   </body>
 </html>
