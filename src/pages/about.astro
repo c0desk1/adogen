@@ -1,0 +1,400 @@
+---
+// src/pages/about.astro
+import Layout from "@/layouts/Layout.astro";
+import Icon from "@/components/ui/Icon.astro";
+import {
+  SITE,
+  ROUTES,
+  buildMeta,
+  schemaWebPage,
+  schemaBreadcrumb,
+  schemaOrganization,
+} from "@/consts";
+
+const meta = buildMeta({
+  title: "About",
+  description:
+    "Adogen adalah alat gratis bertenaga AI untuk kontributor Adobe Stock — dibuat untuk menghemat waktu, menjaga privasi, dan menghasilkan metadata profesional tanpa kerumitan.",
+  canonical: `${SITE.url}${ROUTES.about}`,
+  ogType: "website",
+});
+
+const schemas = [
+  schemaWebPage({
+    title: `About | ${SITE.name}`,
+    description: meta.description,
+    url: `${SITE.url}${ROUTES.about}`,
+    type: "AboutPage",
+  }),
+  schemaBreadcrumb([
+    { name: "Home", url: SITE.url },
+    { name: "About", url: `${SITE.url}${ROUTES.about}` },
+  ]),
+  schemaOrganization,
+];
+
+const values = [
+  {
+    icon: "shield",
+    label: "Privacy",
+    title: "Zero Server Storage",
+    desc: "Kunci API dan gambar tidak pernah menyentuh server kami. Semua pemrosesan terjadi di browser Anda — tidak ada yang kami simpan.",
+  },
+  {
+    icon: "clock",
+    label: "Efficiency",
+    title: "Batch at Scale",
+    desc: "Metadata untuk 50+ gambar dalam hitungan menit. Tidak ada lagi keywording manual yang menguras waktu dan energi.",
+  },
+  {
+    icon: "sparkles",
+    label: "Quality",
+    title: "Commercial-Grade Output",
+    desc: "Judul SEO-optimized, 50 kata kunci terurut relevansi, dan kategori Adobe Stock yang tepat — setiap saat.",
+  },
+  {
+    icon: "lock",
+    label: "BYOK",
+    title: "Bring Your Own Key",
+    desc: "Tidak ada biaya tersembunyi. Bayar langsung ke provider AI pilihan Anda. Kami hanya menyediakan antarmukanya.",
+  },
+  {
+    icon: "layers",
+    label: "Resilience",
+    title: "Multi-Engine Fallback",
+    desc: "Groq, Mistral, OpenRouter, Cloudflare, atau endpoint kustom — fallback otomatis jika satu engine gagal.",
+  },
+  {
+    icon: "code",
+    label: "Transparency",
+    title: "No Black Boxes",
+    desc: "Anda tahu persis ke mana data Anda pergi. Langsung ke engine AI pilihan Anda, tanpa perantara tersembunyi.",
+  },
+];
+
+const engines = [
+  { id: "groq",       name: "Groq",               model: "Llama 4 Scout · Mixtral 8x7B",   badge: "Fastest",      color: "text-orange-400",  dot: "bg-orange-400" },
+  { id: "mistral",    name: "Mistral AI",          model: "Mistral Medium · Pixtral 12B",   badge: "Multimodal",   color: "text-violet-400",  dot: "bg-violet-400" },
+  { id: "openrouter", name: "OpenRouter",          model: "GPT-4o Mini · Qwen VL Plus",     badge: "Multi-model",  color: "text-sky-400",     dot: "bg-sky-400" },
+  { id: "cf",         name: "Cloudflare Workers",  model: "LLaVA 1.5 7B · Phi 3.5 Vision", badge: "Free Tier",    color: "text-amber-400",   dot: "bg-amber-400" },
+  { id: "custom",     name: "Custom Endpoint",     model: "Any OpenAI-compatible API",      badge: "Self-hosted",  color: "text-(--fg-muted)", dot: "bg-(--fg-muted)" },
+];
+
+const stats = [
+  { value: "50+",  label: "Gambar per batch" },
+  { value: "5",    label: "Engine AI" },
+  { value: "0",    label: "Data di server" },
+  { value: "21",   label: "Kategori Stock" },
+];
+---
+
+<Layout {meta} schema={schemas}>
+  <div class="relative flex-1 w-full flex flex-col items-center bg-(--bg) overflow-hidden selection:bg-(--fg-strong) selection:text-(--bg)">
+    <div class="fixed inset-0 z-0 pointer-events-none flex justify-center">
+      <div class="absolute top-[-10%] w-[80vw] h-150 bg-(--brand-blue) opacity-[0.06] blur-[150px] rounded-full mix-blend-normal dark:mix-blend-screen animate-pulse-slow"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(var(--border-strong)_1px,transparent_1px)] bg-size-[32px_32px] mask-[linear-gradient(to_bottom,black_30%,transparent_100%)] opacity-40 animate-grid-scroll"></div>
+    </div>
+    <div class="relative z-10 w-full border-b border-(--border-strong) hidden h-0">
+      <div class="max-w-300 mx-auto px-4 sm:px-6 py-3 flex items-center gap-1.5 text-mono-label-12 text-(--fg-subtle) uppercase tracking-widest">
+        <a href={ROUTES.home} class="hover:text-(--fg-strong) transition-colors duration-150">Home</a>
+        <span class="opacity-40">/</span>
+        <span class="text-(--fg-muted)">About</span>
+      </div>
+    </div>
+    <section class="relative z-10 w-full max-w-300 mx-auto px-4 sm:px-6 pt-28 pb-20 flex flex-col items-center text-center">
+      <div class="animate-in fade-in slide-in-from-bottom-4 duration-700 ease-out fill-mode-both inline-flex items-center gap-2.5 rounded-full border border-(--border-strong) bg-(--surface-subtle)/80 backdrop-blur-md px-3 py-1.5 text-label-12 text-(--fg-muted) shadow-sm mb-10">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-(--brand-blue) opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-(--brand-blue)"></span>
+        </span>
+        About <span class="text-(--fg-strong) ml-1">{SITE.name}</span>
+      </div>
+      <h1 class="animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-150 ease-out fill-mode-both text-display-64 sm:text-display-80 lg:text-display-96 text-(--fg-strong) text-balance drop-shadow-sm mb-6">
+        Built for<br />
+        <span class="text-transparent bg-clip-text bg-linear-to-b from-(--fg-strong) to-(--fg-muted)">Contributors.</span>
+      </h1>
+      <p class="animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300 ease-out fill-mode-both text-body-18 sm:text-body-20 text-(--fg-muted) max-w-2xl text-balance mb-14">
+        Adogen lahir dari frustrasi nyata: menulis metadata untuk ratusan aset secara manual itu melelahkan. Kami membangun solusi yang menghargai <strong class="text-(--fg-strong)">waktu dan privasi Anda.</strong>
+      </p>
+      <div class="animate-in fade-in zoom-in-95 duration-1000 delay-500 ease-out fill-mode-both w-full max-w-2xl grid grid-cols-2 sm:grid-cols-4 divide-x divide-(--border-strong) border border-(--border-strong) rounded-2xl bg-(--surface-elevated)/90 backdrop-blur-xl shadow-[0_20px_40px_-15px_rgba(0,0,0,0.15)] overflow-hidden">
+        {stats.map((s, i) => (
+          <div class:list={["flex flex-col items-center justify-center py-6 gap-1", i % 2 === 0 && i > 1 ? "border-t sm:border-t-0 border-(--border-strong)" : ""]}>
+            <span class="text-heading-40 text-(--fg-strong) tabular-nums font-black tracking-tighter">{s.value}</span>
+            <span class="text-mono-label-12 text-(--fg-subtle) uppercase tracking-widest">{s.label}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+    <section class="relative z-10 w-full max-w-300 mx-auto px-4 sm:px-6 pb-24">
+      <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-12">
+        <div>
+          <p class="text-overline-12 text-(--fg-muted) mb-3 uppercase tracking-widest">Core Principles</p>
+          <h2 class="text-heading-40 sm:text-heading-56 text-(--fg-strong)">
+            Engineered with <span class="text-transparent bg-clip-text bg-linear-to-r from-(--fg-subtle) to-(--fg-strong)">intent.</span>
+          </h2>
+        </div>
+        <p class="text-body-16 text-(--fg-muted) max-w-[38ch] sm:text-right">
+          Enam prinsip yang menjadi fondasi setiap keputusan desain dan teknis.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
+        <div class="lg:col-span-5 group relative flex flex-col justify-between rounded-2xl border border-(--border-strong) bg-(--surface) p-8 sm:p-10 overflow-hidden transition-all duration-300 hover:border-(--fg-subtle) hover:shadow-lg animate-in fade-in slide-in-from-bottom-4 duration-700 fill-mode-both">
+          <div class="absolute right-0 bottom-0 w-2/3 h-2/3 opacity-10 pointer-events-none translate-x-6 translate-y-6 group-hover:translate-x-3 transition-transform duration-700">
+            <div class="w-full h-full border border-(--border-strong) rounded-tl-xl bg-(--surface-elevated) flex items-center justify-center">
+              <Icon name="shield" className="w-24 h-24 text-(--fg-dim)" />
+            </div>
+          </div>
+          <div class="relative z-10">
+            <div class="flex items-center justify-between mb-8">
+              <div class="inline-flex h-14 w-14 items-center justify-center rounded-xl bg-(--surface-elevated) border border-(--border-strong) text-(--fg-strong) shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:text-(--brand-blue)">
+                <Icon name="shield" className="w-6 h-6" />
+              </div>
+              <span class="text-overline-11 text-(--fg-dim) uppercase tracking-widest">01</span>
+            </div>
+            <span class="text-mono-label-12 text-(--brand-blue) uppercase tracking-widest mb-3 block">{values[0].label}</span>
+            <h3 class="text-heading-32 text-(--fg-strong) mb-4">{values[0].title}</h3>
+            <p class="text-body-16 text-(--fg-muted)">{values[0].desc}</p>
+          </div>
+        </div>
+        <div class="lg:col-span-7 flex flex-col gap-4 sm:gap-6">
+          {values.slice(1, 3).map((v, i) => (
+            <div class:list={["group relative flex items-start gap-6 rounded-2xl border border-(--border-strong) bg-(--surface) p-7 overflow-hidden transition-all duration-300 hover:border-(--fg-subtle) hover:shadow-lg animate-in fade-in slide-in-from-bottom-4 fill-mode-both", `duration-${700 + i * 100}`]}>
+              <div class="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-(--surface-elevated) border border-(--border-strong) text-(--fg-strong) shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:text-(--brand-blue)">
+                <Icon name={v.icon as any} className="w-5 h-5" />
+              </div>
+              <div>
+                <div class="flex items-center gap-3 mb-2">
+                  <span class="text-mono-label-12 text-(--brand-blue) uppercase tracking-widest">{v.label}</span>
+                  <span class="text-overline-11 text-(--fg-dim)">0{i + 2}</span>
+                </div>
+                <h3 class="text-heading-20 text-(--fg-strong) mb-2">{v.title}</h3>
+                <p class="text-body-14 text-(--fg-muted)">{v.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+        {values.slice(3).map((v, i) => (
+          <div class:list={["lg:col-span-4 group relative flex flex-col gap-5 rounded-2xl border border-(--border-strong) bg-(--surface) p-7 overflow-hidden transition-all duration-300 hover:border-(--brand-blue) hover:shadow-lg animate-in fade-in slide-in-from-bottom-4 fill-mode-both", `duration-${800 + i * 100}`]}>
+            <div class="flex items-center justify-between">
+              <div class="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-(--surface-elevated) border border-(--border-strong) text-(--fg-strong) shadow-sm transition-transform duration-300 group-hover:scale-110 group-hover:text-(--brand-blue)">
+                <Icon name={v.icon as any} className="w-5 h-5" />
+              </div>
+              <span class="text-overline-11 text-(--fg-dim)">0{i + 4}</span>
+            </div>
+            <div>
+              <span class="text-mono-label-12 text-(--brand-blue) uppercase tracking-widest mb-2 block">{v.label}</span>
+              <h3 class="text-heading-18 text-(--fg-strong) mb-2">{v.title}</h3>
+              <p class="text-body-14 text-(--fg-muted)">{v.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+    <section class="relative z-10 w-full border-t border-(--border-strong) bg-(--surface-subtle)/50 py-24">
+      <div class="max-w-300 mx-auto px-4 sm:px-6">
+        <div class="mb-12">
+          <p class="text-overline-12 text-(--fg-muted) mb-3 uppercase tracking-widest">Workflow</p>
+          <h2 class="text-heading-40 sm:text-heading-56 text-(--fg-strong)">
+            Three steps. <span class="text-transparent bg-clip-text bg-linear-to-r from-(--fg-subtle) to-(--fg-strong)">Zero friction.</span>
+          </h2>
+        </div>
+
+        <div class="w-full rounded-2xl border border-(--border-strong) bg-(--surface-elevated)/90 backdrop-blur-xl shadow-[0_30px_60px_-15px_rgba(0,0,0,0.2)] overflow-hidden ring-1 ring-(--border-subtle)">
+          <div class="px-4 py-3 border-b border-(--border) bg-(--surface-subtle) flex items-center gap-2">
+            <div class="flex gap-1.5 mr-2">
+              <div class="w-3 h-3 rounded-full bg-(--border-strong) hover:bg-[#ff5f56] transition-colors"></div>
+              <div class="w-3 h-3 rounded-full bg-(--border-strong) hover:bg-[#ffbd2e] transition-colors"></div>
+              <div class="w-3 h-3 rounded-full bg-(--border-strong) hover:bg-[#27c93f] transition-colors"></div>
+            </div>
+            <span class="text-mono-label-12 text-(--fg-muted) uppercase tracking-widest">adogen — workflow</span>
+          </div>
+
+          <div class="divide-y divide-(--border-strong)">
+            {[
+              {
+                n: "01", tag: "UPLOAD",
+                title: "Unggah Gambar",
+                desc: "Seret & lepas satu atau banyak gambar ke area upload. Gambar dikonversi ke base64 di browser — tidak ada yang dikirim ke server kami.",
+                log: "> Reading file buffer... [OK]\n> Converting to base64... [OK]\n> Queued for processing [42 files]",
+              },
+              {
+                n: "02", tag: "CONFIGURE",
+                title: "Pilih Engine & Konfigurasi",
+                desc: "Masukkan kunci API, pilih model AI, atur panjang judul, jumlah kata kunci, dan preferensi lainnya di panel pengaturan.",
+                log: "> Engine: Groq / llama-4-scout\n> Max keywords: 50\n> Title length: 200 chars",
+              },
+              {
+                n: "03", tag: "EXPORT",
+                title: "Generate & Ekspor ke CSV",
+                desc: "Klik Generate. AI menganalisis gambar secara visual dan menghasilkan judul, kata kunci, dan kategori. Ekspor hasil ke CSV — siap upload ke Adobe Stock.",
+                log: "> Payload received (38ms)\n> Writing metadata... [OK]\n> CSV export ready ✓",
+              },
+            ].map((s, i) => (
+              <div class="group flex flex-col sm:flex-row items-start gap-6 sm:gap-10 px-8 py-8 hover:bg-(--surface-subtle)/50 transition-colors duration-200">
+                <div class="flex items-center gap-5 sm:w-64 shrink-0">
+                  <span class="text-display-64 font-black tabular-nums text-(--border-strong) leading-none select-none group-hover:text-(--brand-blue) transition-colors duration-300">{s.n}</span>
+                  <div>
+                    <span class="text-overline-10 text-(--brand-blue) uppercase tracking-widest block mb-1">{s.tag}</span>
+                    <h3 class="text-heading-18 text-(--fg-strong)">{s.title}</h3>
+                  </div>
+                </div>
+                <div class="flex-1 flex flex-col sm:flex-row gap-6">
+                  <p class="text-body-14 text-(--fg-muted) max-w-[44ch] flex-1">{s.desc}</p>
+                  <div class="sm:w-56 shrink-0 p-3 rounded-xl bg-(--bg) border border-(--border) wrap text-code-12 text-(--fg-muted) font-mono leading-relaxed">
+                    {s.log.split('\n').map((line) => (
+                      <div class:list={[line.includes('[OK]') || line.includes('✓') ? 'text-(--success)' : line.includes('[') && !line.includes('[OK]') ? 'text-(--brand-blue)' : '']}>{line}</div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="relative z-10 w-full max-w-300 mx-auto px-4 sm:px-6 py-24">
+      <div class="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4 mb-12">
+        <div>
+          <p class="text-overline-12 text-(--fg-muted) mb-3 uppercase tracking-widest">Compatibility</p>
+          <h2 class="text-heading-40 sm:text-heading-56 text-(--fg-strong)">
+            Five engines. <span class="text-transparent bg-clip-text bg-linear-to-r from-(--fg-subtle) to-(--fg-strong)">One interface.</span>
+          </h2>
+        </div>
+        <p class="text-body-16 text-(--fg-muted) max-w-[36ch] sm:text-right">
+          Tidak terikat ke satu provider. Fallback otomatis jika engine utama gagal.
+        </p>
+      </div>
+
+      <div class="rounded-2xl border border-(--border-strong) bg-(--surface-elevated)/90 backdrop-blur-xl shadow-[0_30px_60px_-15px_rgba(0,0,0,0.2)] overflow-hidden ring-1 ring-(--border-subtle)">
+        <div class="grid grid-cols-[auto_1fr_auto] sm:grid-cols-[auto_1fr_1fr_auto] items-center px-6 py-3 border-b border-(--border) bg-(--surface-subtle)">
+          <span class="text-overline-11 text-(--fg-subtle) uppercase tracking-widest w-28">Engine</span>
+          <span class="text-overline-11 text-(--fg-subtle) uppercase tracking-widest hidden sm:block">Models</span>
+          <span class="text-overline-11 text-(--fg-subtle) uppercase tracking-widest hidden sm:block">Keterangan</span>
+          <span class="text-overline-11 text-(--fg-subtle) uppercase tracking-widest text-right">Status</span>
+        </div>
+
+        {engines.map((e, i) => (
+          <div class:list={[
+            "group grid grid-cols-[auto_1fr_auto] sm:grid-cols-[auto_1fr_1fr_auto] items-center px-6 py-4 hover:bg-(--surface-subtle)/60 transition-colors duration-150",
+            i < engines.length - 1 ? "border-b border-(--border)" : "",
+          ]}>
+            <div class="flex items-center gap-3 w-28">
+              <span class:list={["w-2 h-2 rounded-full shrink-0", e.dot]}></span>
+              <span class:list={["text-label-14 font-semibold", e.color]}>{e.name}</span>
+            </div>
+            <span class="text-body-13 text-(--fg-muted) hidden sm:block pr-4">{e.model}</span>
+            <span class="text-body-13 text-(--fg-subtle) hidden sm:block"></span>
+            <div class="ml-auto flex items-center gap-2">
+              <span class:list={[
+                "inline-flex items-center px-2.5 py-1 rounded-md text-mono-label-12 uppercase tracking-widest border",
+                e.id === "cf"
+                  ? "bg-(--success)/10 text-(--success) border-(--success)/20"
+                  : "bg-(--surface) text-(--fg-subtle) border-(--border)",
+              ]}>
+                {e.badge}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+    <section class="relative z-10 w-full border-t border-(--border-strong) bg-(--surface-subtle)/50 py-20">
+      <div class="max-w-300 mx-auto px-4 sm:px-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div class="lg:col-span-5 flex flex-col justify-center gap-4">
+            <p class="text-overline-12 text-(--fg-muted) uppercase tracking-widest">Security</p>
+            <h2 class="text-heading-40 text-(--fg-strong)">
+              Privacy by<br />
+              <span class="text-transparent bg-clip-text bg-linear-to-r from-(--fg-subtle) to-(--fg-strong)">architecture.</span>
+            </h2>
+            <p class="text-body-16 text-(--fg-muted) max-w-[40ch]">
+              Bukan sekadar janji privasi — ini adalah keputusan arsitektur. Server kami tidak bisa menyimpan data Anda karena kami tidak pernah menerimanya.
+            </p>
+          </div>
+          <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {[
+              { icon: "shield",  title: "Zero Server Storage",      desc: "Gambar dikonversi base64 di browser, dikirim langsung ke engine AI." },
+              { icon: "lock",     title: "API Key di Browser",        desc: "Tersimpan di localStorage Anda — tidak pernah dikirim ke server kami." },
+              { icon: "eyeClose", title: "Tanpa Cookie Pelacakan",    desc: "Tidak ada analitik pihak ketiga, tidak ada pixel tracking." },
+              { icon: "askAIAgent",     title: "Langsung ke AI Engine",     desc: "Data mengalir dari browser Anda langsung ke provider pilihan Anda." },
+            ].map(p => (
+              <div class="group flex items-start gap-4 p-5 rounded-2xl border border-(--border-strong) bg-(--surface) hover:border-(--brand-blue) transition-colors duration-200">
+                <div class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-(--surface-elevated) border border-(--border-strong) text-(--fg-strong) shadow-sm group-hover:text-(--brand-blue) transition-colors duration-200">
+                  <Icon name={p.icon as any} className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 class="text-heading-14 text-(--fg-strong) mb-1">{p.title}</h3>
+                  <p class="text-body-13 text-(--fg-muted)">{p.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="w-full relative z-10 border-t border-(--border-strong) bg-(--bg) overflow-hidden py-32 sm:py-40">
+      <div class="absolute top-0 left-0 w-full h-px bg-linear-to-r from-transparent via-(--fg-subtle) to-transparent opacity-30"></div>
+      <div class="max-w-300 mx-auto px-6 flex flex-col items-center text-center relative">
+        <div class="absolute inset-0 z-0">
+          <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-125 h-125 bg-(--brand-blue) opacity-[0.06] blur-[120px] rounded-full animate-pulse-slow"></div>
+        </div>
+        <h2 class="relative z-10 text-heading-48 sm:text-display-72 font-black tracking-tighter text-(--fg-strong) mb-6 text-balance drop-shadow-sm">
+          Ship Metadata.<br class="hidden sm:block" />
+          <span class="text-transparent bg-clip-text bg-linear-to-r from-(--brand-blue) via-white to-(--brand-blue) animate-text-shimmer bg-size-[200%_auto]">Outpace the Algorithm.</span>
+        </h2>
+        <p class="relative z-10 text-body-18 text-(--fg-muted) mb-12 max-w-lg tracking-tight">
+          Tidak perlu akun. Tidak perlu langganan. Bawa kunci API Anda sendiri dan langsung mulai.
+        </p>
+        <div class="relative z-10 flex flex-col sm:flex-row items-center gap-4">
+          <div class="absolute -inset-1 rounded-xl bg-linear-to-r from-(--brand-blue) to-(--success) opacity-20 blur-lg animate-pulse"></div>
+          <a href={ROUTES.metadata} class="relative inline-flex items-center justify-center h-16 px-10 rounded-xl bg-(--fg-strong) text-(--bg) text-button-16 uppercase tracking-widest transition-all hover:scale-105 hover:bg-(--brand-blue) active:scale-95 shadow-xl hover:shadow-[0_0_40px_rgba(0,112,243,0.3)]">
+            Launch Generator
+            <Icon name="arrow-right" className="w-5 h-5 ml-3" />
+          </a>
+          <a href={ROUTES.docs} class="inline-flex items-center justify-center h-16 px-10 rounded-xl bg-(--surface) border border-(--border-strong) text-(--fg-strong) font-bold text-[15px] uppercase tracking-widest transition-all hover:bg-(--surface-subtle) hover:border-(--fg-strong) active:scale-95">
+            Read Docs
+          </a>
+        </div>
+        <div class="mt-16 flex items-center gap-8 text-mono-label-12 text-(--fg-muted) uppercase tracking-widest">
+          <div class="flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-(--success)"></span>
+            Zero Cost
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-(--brand-blue)"></span>
+            Zero Retention
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-(--fg-muted)"></span>
+            BYOK
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<style is:global>
+  @keyframes text-shimmer {
+    0%   { background-position: 100% 50%; }
+    100% { background-position: -100% 50%; }
+  }
+  .animate-text-shimmer {
+    animation: text-shimmer 6s ease-in-out infinite alternate;
+  }
+  @keyframes grid-scroll {
+    0%   { transform: translateY(0); }
+    100% { transform: translateY(32px); }
+  }
+  .animate-grid-scroll {
+    animation: grid-scroll 10s linear infinite;
+  }
+  @keyframes pulse-slow {
+    0%, 100% { opacity: 0.04; transform: scale(1); }
+    50%       { opacity: 0.08; transform: scale(1.05); }
+  }
+  .animate-pulse-slow {
+    animation: pulse-slow 8s ease-in-out infinite;
+  }
+</style>

@@ -1,0 +1,124 @@
+---
+// src/pages/docs/[...slug].astro
+export const prerender = true;
+
+import { 
+  getCollection, 
+  render 
+} from 'astro:content';
+
+import { 
+  buildMeta, 
+  schemaWebPage, 
+  SITE 
+} from '@/consts';
+
+import DocsLayout from '@/layouts/DocsLayout.astro';
+import Container from '@/components/ui/Container.astro';
+import Section from '@/components/ui/Section.astro';
+import Toc from '@/components/docs/DocsToc.astro';
+import DocsMobileToc from '@/components/docs/DocsMobileToc.astro';
+import DocsHeader from '@/components/docs/DocsHeader.astro';
+import { components } from '@/components/mdx/MDXComponents.astro';
+import DocsPager from '@/components/docs/DocsPager.astro';
+import ScrollToTopFloating from '@/components/docs/ScrollToTopFloating.astro';
+import DocsAskAi from '@/components/docs/DocsAskAi.astro';
+import ScrollToTop from '@/components/docs/ScrollToTop.astro';
+
+export async function getStaticPaths() {
+  const docsEntries = await getCollection('docs');
+  
+  const sorted = [...docsEntries].sort((a, b) => (a.data.order ?? 999) - (b.data.order ?? 999));
+  const primaryRootId = sorted[0]?.id;
+
+  return docsEntries.map(entry => {
+    const currentSlug = entry.data.slug || entry.id;
+    const isRoot = entry.id === primaryRootId;
+    
+    return {
+      params: { slug: isRoot ? undefined : currentSlug },
+      props: { entry, primaryRootId },
+    };
+  });
+}
+
+const { entry, primaryRootId } = Astro.props;
+
+if (!entry) {
+  return new Response(null, { status: 404, statusText: 'Not Found' });
+}
+
+const { Content, headings } = await render(entry);
+
+const allDocs = await getCollection('docs');
+const sidebarItems = allDocs.sort((a, b) => (a.data.order ?? 999) - (b.data.order ?? 999));
+
+const sidebarProps = { sidebarItems, primaryRootId, cleanSlug: Astro.params.slug };
+
+const cleanSlug = Astro.params.slug;
+const currentUrl = `${SITE.url}/docs${cleanSlug ? `/${cleanSlug}` : ''}`;
+
+const metaProps = buildMeta({
+  title: entry.data.title,
+  description: entry.data.description || SITE.description,
+  canonical: currentUrl,
+});
+
+const pageSchema = schemaWebPage({
+  title: entry.data.title,
+  description: entry.data.description || SITE.description,
+  url: currentUrl,
+});
+
+const currentIndex = sidebarItems.findIndex(item => item.id === entry.id);
+const prevEntry = currentIndex > 0 ? sidebarItems[currentIndex - 1] : null;
+const nextEntry = currentIndex < sidebarItems.length - 1 ? sidebarItems[currentIndex + 1] : null;
+
+---
+
+<DocsLayout 
+  meta={metaProps} 
+  schema={pageSchema} 
+  sidebarProps={sidebarProps}>
+  <DocsMobileToc headings={headings} />
+  <Fragment>
+    <Container size='full'>
+      <div class="w-full mx-auto min-w-0 px-0 lg:px-4">
+        <Section size="md">
+          <Container size='md' class='px-0!'>
+            <DocsHeader 
+              title={entry.data.title} 
+              description={entry.data.description}
+              lastUpdated={entry.data.lastUpdated}
+              content={entry.body}
+            />
+          </Container>
+          <Container size='md' class='px-0!'>
+            <article class="prose max-w-none min-w-0 wrap-break-words">
+              <Content components={components}/>
+            </article>
+          </Container>
+          <Container size='md' class='px-0!'>
+            <DocsPager 
+              prev={prevEntry} 
+              next={nextEntry} 
+              primaryRootId={primaryRootId} 
+            />
+          </Container>
+        </Section>
+      </div>
+    </Container>
+  </Fragment>
+  <Fragment slot="right">
+    <ScrollToTop label='Scroll to top' />
+    <DocsAskAi label='Ask AI about this page' pageTitle={entry.data.title} pageContent={entry.body || ''} />
+  </Fragment>
+  <Toc headings={headings} />
+  <ScrollToTopFloating />
+</DocsLayout>
+
+<style is:global>
+  .prose h2, .prose h3 {
+    scroll-margin-top: calc(var(--header-height) - 1rem) !important;
+  }
+</style>

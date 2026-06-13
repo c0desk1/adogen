@@ -1,0 +1,378 @@
+---
+// src/pages/index.astro
+import { 
+  buildMeta, 
+  SITE, 
+  ROUTES, 
+  UI_TEXT, 
+  schemaSoftwareApplication 
+} from '@/consts';
+
+import Layout from '@/layouts/Layout.astro';
+import Container from '@/components/ui/Container.astro';
+import Icon from '@/components/ui/Icon.astro';
+import Alert from '@/components/ui/Alert.astro';
+import Card from '@/components/ui/Card.astro';
+import Button from '@/components/ui/Button.astro';
+import Section from '@/components/ui/Section.astro';
+import heroImage from '@/assets/images/Adogen-hero.jpeg';
+import { Image } from 'astro:assets';
+
+const meta = buildMeta({
+  title: `${SITE.name} — Ship Metadata. Outpace the Algorithm.`,
+  description: SITE.description,
+  canonical: SITE.url,
+  ogType: 'website',
+  keywords: ['Adobe Stock', 'metadata generator', 'image upscaler', 'AI', 'microstock', 'automation'],
+});
+
+const jsonLd = schemaSoftwareApplication({
+  name: SITE.name,
+  description: SITE.description,
+  url: SITE.url,
+  image: SITE.ogImage,
+  applicationCategory: 'MultimediaApplication',
+  operatingSystem: 'All',
+  price: '0',
+  priceCurrency: 'USD'
+});
+
+const tools = [
+  {
+    href: ROUTES.metadata,
+    icon: 'sparkles',
+    title: 'Metadata Engine',
+    description: 'Vector extraction and LLM injection. Generate commercial metadata structures in bulk.',
+    features: ['Parallel Batch Processing', 'Multi-LLM Architecture'],
+    cta: UI_TEXT.GENERATE,
+  },
+  {
+    href: ROUTES.upscale,
+    icon: 'upscale',
+    title: 'Neural Upscaler',
+    description: 'Lock in sharpness up to 4× resolution. Local execution with zero data persistence.',
+    features: ['4x Scaling Models', 'Edge Processing'],
+    cta: 'Initialize Upscale',
+  },
+];
+---
+
+<Layout {meta} isHome>
+  <div class="relative flex-1 w-full flex flex-col items-center bg-(--bg)">
+    <Alert 
+      title="ADOGEN ALERT"
+      message="Image Upscale masih tahap uji coba."
+      icon="askAIAgent"
+      actionLabel="VIEW EVENTS"
+      actionHref={ROUTES.upscale}
+    />
+    <div class="fixed inset-0 z-0 pointer-events-none justify-center hidden">
+      <div class="absolute inset-0 bg-[radial-gradient(var(--border)_1px,transparent_1px)] bg-size-[32px_32px] mask-[linear-gradient(to_bottom,black_30%,transparent_100%)] opacity-40 animate-grid-scroll"></div>
+    </div>
+
+    <Section size="md" class="w-full">
+      <Container size="lg" class="relative z-10 w-full mx-auto pt-[calc(var(--header-height)+1rem)] flex flex-col items-center text-center">
+        <h1 class="animate-in fade-in slide-in-from-bottom-6 duration-1000 delay-150 ease-out fill-mode-both text-heading-40 md:text-display-64 text-(--fg-strong) text-wrap balance drop-shadow-sm">
+          Generate. <span class="text-transparent bg-clip-text bg-linear-to-b from-(--fg-strong) to-(--fg-muted)">Scale.</span> <br/>
+          Dominate Stock.
+        </h1>
+        
+        <p class="animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300 ease-out fill-mode-both mt-8 text-body-16 sm:text-body-18 text-(--fg-muted) max-w-2xl text-balance">
+          Industrial-grade AI for microstock contributors. Extract metadata and upscale images locally. <strong class="text-(--fg-strong)">Zero cost. Zero retention.</strong>
+        </p>
+        
+        <div class="animate-in fade-in zoom-in-95 duration-1000 delay-500 ease-out fill-mode-both mt-12 w-full max-w-2xl relative group cursor-text" onclick="window.location.href='/metadata'">
+          <div class="absolute -inset-2 rounded-full bg-linear-to-r from-(--accent) to-(--success) opacity-0 group-hover:opacity-20 group-active:opacity-20 blur-xl transition-opacity duration-700"></div>        
+          <div class="relative flex items-center justify-between p-2 pl-6 rounded-full bg-(--surface) border border-(--border) shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] group-hover:border-(--accent) group-active:border-(--accent)">
+            <div class="flex items-center gap-4 w-full overflow-hidden">
+              <Icon name="askAIAgent" className="w-5 h-5 text-(--fg-muted) shrink-0" />
+              <span class="text-body-14 md:text-body-16 text-(--fg-strong) whitespace-nowrap overflow-hidden border-r-2 border-(--accent) animate-typing-infinite">
+                Extract commercial metadata for DSC_0094.dng...
+              </span>
+            </div>
+            <Button variant='icon-outline' size='md' class="shrink-0 flex items-center justify-center h-12 w-12 transition-transform hover:scale-95 active:scale-95 shadow-md ml-2 hover:bg-(--accent) active:bg-(--accent)">
+              <Icon name="arrow-right" className="w-5 h-5" />
+            </Button>
+          </div>
+        </div>
+      </Container>
+    </Section>
+
+    <Section size="md" class="w-full">
+      <Container size="lg" class="animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-700 ease-out fill-mode-both w-full relative z-10">
+        <div class="w-full rounded-lg border border-(--border) bg-(--surface-elevated)/90 backdrop-blur-2xl shadow-[0_30px_60px_-15px_rgba(0,0,0,0.2)] overflow-hidden flex flex-col-reverse lg:flex-row h-auto lg:h-150">
+          <div class="w-full lg:w-72 border-b lg:border-b-0 lg:border-r border-(--border) bg-(--surface-subtle) flex flex-col">
+            <div class="px-4 py-3 border-b border-(--border) flex items-center gap-2">
+              <div class="flex gap-1.5 mr-2 sm:flex">
+                <div class="w-3 h-3 rounded-full bg-(--border-strong) hover:bg-[#ff5f56]"></div>
+                <div class="w-3 h-3 rounded-full bg-(--border-strong) hover:bg-[#ffbd2e]"></div>
+                <div class="w-3 h-3 rounded-full bg-(--border-strong) hover:bg-[#27c93f]"></div>
+              </div>
+              <span class="text-mono-label-12 text-(--fg-muted) uppercase tracking-widest">Queue (42)</span>
+            </div>
+            <div class="flex-1 p-3 flex flex-col gap-2 overflow-hidden relative">
+              <div class="absolute bottom-0 left-0 right-0 h-24 bg-linear-to-t from-(--surface-subtle) to-transparent z-10"></div>
+              <div class="flex items-center gap-3 p-2 rounded-lg bg-(--surface) border border-(--accent)/30 shadow-sm relative overflow-hidden">
+                <div class="w-10 h-10 rounded bg-(--bg) border border-(--border) overflow-hidden shrink-0">
+                  <Image width={1200} height={630} loading="eager" fetchpriority="low" decoding="async" src={heroImage} alt="extraction" class="w-full h-full object-cover" />
+                </div>
+                <div class="flex flex-col min-w-0">
+                  <span class="text-label-12 text-(--fg-strong) truncate mb-1">RAW_1042.dng</span>
+                  <span class="text-mono-label-12 text-(--accent) animate-pulse">Extracting...</span>
+                </div>
+              </div>
+              {[1043, 1044, 1045, 1046, 1047].map(num => (
+                <div class="flex items-center gap-3 p-2 rounded-lg hover:bg-(--surface) border border-transparent transition-colors opacity-60">
+                  <div class="w-10 h-10 rounded bg-(--bg) border border-(--border) flex items-center justify-center shrink-0">
+                    <Icon name="image" className="w-4 h-4 text-(--fg-muted)" />
+                  </div>
+                  <div class="flex flex-col min-w-0">
+                    <span class="text-label-12 text-(--fg-strong) truncate">RAW_{num}.jpeg</span>
+                    <span class="text-caption-11 text-(--fg-muted)">Queued</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div class="flex-1 flex flex-col bg-(--bg) relative">
+            <div class="px-6 py-3 border-b border-(--border) flex items-center justify-between">
+              <div class="flex items-center gap-3 flex-wrap">
+                <span class="text-label-13 text-(--fg-strong)">Workspace</span>
+                <span class="px-2 py-0.5 rounded bg-(--surface-subtle) border border-(--border) text-mono-label-12 text-(--fg-muted)">Mistral-8x7B</span>
+              </div>
+              <div class="flex gap-2">
+                <div class="h-7 px-3 rounded-md bg-(--surface-subtle) border border-(--border) flex items-center text-label-12 text-(--fg-strong)">Generate</div>
+                <div class="h-7 px-3 rounded-md flex items-center text-label-12 text-(--fg-muted) hover:text-(--fg-strong) cursor-pointer">Export</div>
+              </div>
+            </div>
+            <div class="flex-1 p-6 flex flex-col lg:flex-row gap-6 overflow-y-auto">
+              <div class="w-full lg:w-1/2 flex flex-col gap-4">
+                <div class="relative w-full aspect-square sm:aspect-video lg:aspect-square rounded-xl border border-(--border) bg-(--surface-muted) overflow-hidden group">
+                  <Image width={1200} height={630} loading="eager" fetchpriority="high" decoding="async" src={heroImage} alt="Processing" class="w-full h-full object-cover opacity-90 transition-transform duration-700 group-hover:scale-105 group-active:scale-105" />
+                  <div class="absolute inset-0 bg-linear-to-t from-(--bg)/80 to-transparent"></div>
+                  <div class="absolute top-0 left-0 w-full h-0.5 bg-(--accent) shadow-[0_0_20px_3px_var(--accent)] animate-scan z-20"></div>
+                  <div class="absolute top-[20%] left-[20%] w-[60%] h-[60%] border border-(--accent)/50 bg-(--accent)/10 rounded-lg opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity duration-500">
+                    <span class="absolute -top-3 left-2 bg-(--accent) text-white text-overline-10 px-1.5 py-0.5 rounded-sm">Subject</span>
+                  </div>
+                </div>
+                
+                <Card variant="secondary" padding="md" radius="md" class="text-code-12 text-(--fg-muted) h-32 overflow-hidden relative">
+                  <div class="absolute inset-x-0 bottom-0 h-10 bg-linear-to-t from-(--surface-subtle) to-transparent z-10"></div>
+                  <div class="animate-log-scroll flex flex-col gap-1 text-code-12">
+                    <div>> Connecting to Groq API... <span class="text-(--success)">[OK]</span></div>
+                    <div>> Analyzing tensor dimensions... <span class="text-(--success)">[OK]</span></div>
+                    <div>> Extracting dominant colors... <span class="text-(--accent)">[PROCESSING]</span></div>
+                    <div>> Injecting LLM context...</div>
+                    <div class="text-(--success)">> Payload received (42ms)</div>
+                  </div>
+                </Card>
+              </div>
+              <div class="w-full lg:w-1/2 flex flex-col gap-6">
+                <div class="space-y-3">
+                  <div class="flex items-center justify-between pb-2">
+                    <span class="font-mono text-overline-12 text-(--fg-muted)">Optimized Title</span>
+                  </div>
+                  
+                  <Card variant="outline" padding="md" radius="md" class="text-body-14 text-(--fg-strong) font-medium shadow-sm hover:border-(--accent) active:border-(--accent) transition-colors">
+                    Abstract fluid <span class="bg-(--accent)/10 text-(--accent) px-1 rounded">topographic landscape</span> with glowing neon contours, 3d render.
+                  </Card>
+                </div>
+                
+                <div class="space-y-3 flex-1">
+                  <div class="flex items-center justify-between pb-2">
+                    <span class="font-mono text-overline-12 text-(--fg-muted)">Optimized Keywords</span>
+                    <span class="text-caption-12 text-(--accent)">100% Relevance</span>
+                  </div>
+                  
+                  <Card variant="outline" padding="md" radius="md">
+                    <div class="flex flex-wrap gap-2">
+                      {['abstract', 'topography', 'neon', 'fluid', '3d', 'render', 'landscape', 'glow', 'futuristic', 'texture', 'cyberpunk', 'dark', 'light', 'design', 'art'].map((kw, i) => (
+                        <span class="animate-in fade-in zoom-in-50 duration-500 fill-mode-both px-2.5 py-1 rounded-md bg-(--surface) border border-(--border) text-label-13 text-(--fg-subtle) hover:text-(--fg-strong) hover:border-(--accent) hover:bg-(--surface-subtle) active:text-(--fg-strong) active:border-(--accent) active:bg-(--surface-subtle) transition-colors cursor-pointer" style={`animation-delay: ${800 + (i * 50)}ms;`}>
+                          {kw}
+                        </span>
+                      ))}
+                      <span class="px-2.5 py-1 rounded-md border border-dashed border-(--border) text-mono-label-13 text-(--fg-muted) animate-pulse">
+                        ...
+                      </span>
+                    </div>
+                  </Card>
+                  
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Container>
+    </Section>
+
+    <Section size="lg" class="w-full">
+      <Container size="xl" class="w-full relative z-10">
+        <div class="flex flex-col items-center text-center max-w-3xl mx-auto mb-16">
+          <h2 class="text-heading-32 sm:text-heading-48 text-(--fg-strong)">
+            Unfair <span class="text-transparent bg-clip-text bg-linear-to-r from-(--fg-subtle) to-(--fg-strong)">Advantage.</span>
+          </h2>
+          <p class="mt-4 text-(--fg-muted) text-body-16 md:text-body-18 text-pretty">Engineered to automate your stock portfolio. High performance, zero bloat.</p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
+          <div class="lg:col-span-8 group relative flex flex-col justify-between rounded-lg border border-(--border) bg-(--surface) p-8 sm:p-10 overflow-hidden transition-all duration-300">
+            <div class="absolute right-0 bottom-0 w-2/3 h-2/3 opacity-20 pointer-events-none translate-x-10 translate-y-10 group-hover:translate-x-5 group-active:translate-x-5 transition-transform duration-700">
+              <div class="w-full h-full border border-(--border-strong) rounded-tl-xl flex flex-col divide-y divide-(--border-strong) bg-(--surface-elevated)">
+                <div class="h-8 flex items-center px-4 gap-4"><div class="w-20 h-2 bg-(--border-strong) rounded"></div><div class="w-32 h-2 bg-(--border-strong) rounded"></div></div>
+                <div class="h-8 flex items-center px-4 gap-4"><div class="w-20 h-2 bg-(--accent) rounded"></div><div class="w-40 h-2 bg-(--border-strong) rounded"></div></div>
+                <div class="h-8 flex items-center px-4 gap-4"><div class="w-20 h-2 bg-(--border-strong) rounded"></div><div class="w-24 h-2 bg-(--border-strong) rounded"></div></div>
+              </div>
+            </div>
+            <div class="relative z-10">
+              <div class="inline-flex h-14 w-14 items-center justify-center rounded-xl bg-(--surface-elevated) border border-(--border) text-(--fg-strong) mb-8 transition-transform duration-300 group-hover:scale-110 group-active:scale-110 shadow-sm group-hover:text-(--accent) group-active:text-(--accent)">
+                <Icon name={tools[0].icon as any} className="w-6 h-6" />
+              </div>
+              
+              <h3 class="text-heading-24 md:text-heading-32 text-(--fg-strong) mb-4">{tools[0].title}</h3>
+              <p class="text-body-14 md:text-body-16 text-(--fg-muted) mb-10 max-w-md">
+                {tools[0].description}
+              </p>
+
+              <div class="flex flex-wrap gap-3 mb-12">
+                {tools[0].features.map(f => (
+                  <div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-(--surface-subtle) border border-(--border) text-label-13 text-(--fg-strong)">
+                    <Icon name="check" className="w-3.5 h-3.5 text-(--success)" /> {f}
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div class="relative z-10 pt-6">
+              <div class="flex items-center justify-between text-button-14 uppercase text-(--fg-strong)">
+                {tools[0].cta} 
+                <Button aria-label={tools[0].cta} href={tools[0].href} variant="icon" size="sm" class="p-1.5 inline-flex items-center text-(--fg-strong) transition-colors">
+                  <Icon name="arrow-right" className="w-full h-full" />
+                </Button>
+              </div>
+            </div>
+            
+          </div>
+
+          <div class="lg:col-span-4 group relative flex flex-col justify-between rounded-lg border border-(--border) bg-(--surface) p-8 sm:p-10 overflow-hidden transition-all duration-300">
+            <div class="absolute inset-0 opacity-[0.03] bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPgo8cmVjdCB3aWR0aD0iNCIgaGVpZ2h0PSI0IiBmaWxsPSIjMDAwIiBmaWxsLW9wYWNpdHk9IjEiLz4KPC9zdmc+')] mix-blend-overlay"></div>
+            <div class="relative z-10">
+              <div class="inline-flex h-14 w-14 items-center justify-center rounded-xl bg-(--surface-elevated) border border-(--border-strong) text-(--fg-strong) mb-8 transition-transform duration-300 group-hover:scale-110 group-active:scale-110 shadow-sm group-hover:text-(--accent) group-active:text-(--accent)">
+                <Icon name={tools[1].icon as any} className="w-6 h-6" />
+              </div>
+              <h3 class="text-heading-24 md:text-heading-32 text-(--fg-strong) mb-4">{tools[1].title}</h3>
+              <p class="text-body-14 md:text-body-16 text-(--fg-muted) mb-10">
+                {tools[1].description}
+              </p>
+              <ul class="space-y-4 mb-12">
+                {tools[1].features.map(f => (
+                  <li class="flex items-center gap-3 text-label-14 text-(--fg-subtle)">
+                    <div class="w-1.5 h-1.5 rounded-full bg-(--accent)"></div>
+                    {f}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            <div class="relative z-10 pt-6">
+              <div class="flex items-center justify-between text-button-14 uppercase text-(--fg-strong)">
+                {tools[1].cta} 
+                <Button aria-label={tools[1].cta}  href={tools[1].href} variant="icon" size="sm" class="p-1.5 inline-flex items-center text-(--fg-strong) transition-colors">
+                  <Icon name="arrow-right" className="w-full h-full" />
+                </Button>
+              </div>
+            </div>
+            
+          </div>
+        </div>
+      </Container>
+    </Section>
+
+    <Section size="md" class="w-full border-t border-dashed border-(--border-subtle)">
+      <Container size='lg' class="relativez-10">
+        <Section size="lg">
+          <div class="mx-auto px-6 flex flex-col items-center text-center relative">
+            <h2 class="relative z-10 text-heading-32 sm:text-heading-48 font-black tracking-tighter text-(--fg-strong) mb-6 text-balance drop-shadow-sm">
+              Ready to <b class="text-(--accent)">automate</b> your <b class="text-chart-5">portfolio?</b>
+            </h2>
+            
+            <p class="relative z-10 text-body-16 md:text-body-18 text-(--fg-muted) mb-12 max-w-lg tracking-tight text-pretty">
+              Stop wasting time on manual keywording. Adogen provides the unfair advantage your portfolio needs. <b>No sign-ups</b>, just raw power.
+            </p>
+            
+            <div class="relative z-10 flex items-center gap-4">
+              <Button href={ROUTES.metadata} variant="primary" size="md" class="text-button-14">
+                Launch Tools
+              </Button>
+              <Button href={ROUTES.docs} variant="secondary" size="md" class="text-button-14">
+                Read Docs
+              </Button>
+            </div>
+            
+          </div>
+         </Section>
+      </Container>
+    </Section>
+  </div>
+</Layout>
+
+<style is:global>
+  @keyframes text-shimmer {
+    0% { background-position: 100% 50%; }
+    100% { background-position: -100% 50%; }
+  }
+  .animate-text-shimmer {
+    animation: text-shimmer 6s ease-in-out infinite alternate;
+  }
+
+  @keyframes grid-scroll {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(32px); }
+  }
+  .animate-grid-scroll {
+    animation: grid-scroll 10s linear infinite;
+  }
+
+  @keyframes pulse-slow {
+    0%, 100% { opacity: 0.04; transform: scale(1); }
+    50% { opacity: 0.08; transform: scale(1.05); }
+  }
+  .animate-pulse-slow {
+    animation: pulse-slow 8s ease-in-out infinite;
+  }
+
+  @keyframes typing-infinite {
+    0%, 10% { width: 0; }
+    40%, 60% { width: 100%; }
+    90%, 100% { width: 0; }
+  }
+  .animate-typing-infinite {
+    display: inline-block;
+    animation: typing-infinite 8s steps(40, end) infinite;
+  }
+
+  @keyframes border-spin-fast {
+    100% { transform: rotate(360deg); }
+  }
+  .animate-border-spin-fast {
+    animation: border-spin-fast 3s linear infinite;
+  }
+
+  @keyframes scan {
+    0% { top: -10%; opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { top: 110%; opacity: 0; }
+  }
+  .animate-scan {
+    animation: scan 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  }
+
+  @keyframes log-scroll {
+    0% { transform: translateY(10px); opacity: 0; }
+    5% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-30%); opacity: 1; }
+  }
+  .animate-log-scroll {
+    animation: log-scroll 6s linear infinite;
+  }
+</style>

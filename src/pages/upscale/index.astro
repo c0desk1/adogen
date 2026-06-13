@@ -1,0 +1,49 @@
+---
+// src/pages/upscale/index.astro
+import { 
+  buildMeta, 
+  schemaSoftwareApplication, 
+  schemaBreadcrumb, 
+  SITE, 
+  ROUTES 
+} from '@/consts';
+
+import UpscaleDropzone from '@/components/adogen/upscale/UpscaleDropzone.astro';
+import UpscaleControls from '@/components/adogen/upscale/UpscaleControls.astro';
+import Sidebar from '@/app/components/sidebar/Sidebar';
+
+import ToolsLayout from '@/layouts/ToolsLayout.astro';
+
+const meta = buildMeta({
+  title: 'Upscale Image',
+  description: 'Batch upscale images up to 4× with AI super-resolution or classic algorithms. PNG, JPEG, WebP. Processed entirely in your browser.',
+  canonical: `${SITE.url}${ROUTES.upscale}`,
+  ogType: 'website',
+  keywords: ['image upscaler', 'batch upscale', 'ai upscale', 'increase resolution', 'super resolution'],
+});
+
+const schema = [
+  schemaSoftwareApplication({
+    name: `${SITE.name} — Image Upscaler`,
+    description: meta.description,
+    url: `${SITE.url}${ROUTES.upscale}`,
+    image: SITE.ogImage,
+    applicationCategory: 'PhotographyApplication',
+    price: '0',
+  }),
+  schemaBreadcrumb([
+    { name: 'Home', url: SITE.url },
+    { name: 'Upscale Image', url: `${SITE.url}${ROUTES.upscale}` },
+  ]),
+];
+const currentPath = Astro.url.pathname;
+---
+
+<ToolsLayout {meta} {schema}>
+  <div class="flex flex-col flex-1 h-full w-full overflow-hidden">
+    <div class="flex-1 overflow-y-auto w-full max-w-6xl mx-auto py-4 space-y-4">
+      <UpscaleControls />
+      <UpscaleDropzone />
+    </div>
+  </div>
+</ToolsLayout>
