@@ -16,7 +16,7 @@ import Output from '@/app/components/workspace/Output';
 import SearchFilterBar from '@/app/components/workspace/SearchFilterBar';
 import Section from '@/components/ui/Section.astro';
 import Toolbar from '@/app/components/workspace/Toolbar';
-import SettingsPanel from '@/app/components/workspace/SettingsPanel';
+import SettingsPanel from '@/app/components/settings/SettingsPanel';
 
 const meta = buildMeta({
   title: 'Metadata Generator',
@@ -43,28 +43,32 @@ const schema = [
 
 ---
 
-<ToolsLayout {meta} {schema} hideFooter hideHeader>
+<ToolsLayout {meta} {schema} hideHeader>
   <Toolbar client:only="react" />
   <Container size='full'>
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_24rem] gap-4 px-0">
       <div class="w-full mx-auto min-w-0 px-0 overflow-y-auto">
-        <Section size="sm">
-          <StatusBar client:only="react" />
-          <div class="sticky top-0 z-30 bg-(--bg)">
+        <div class="sticky top-0 z-30 bg-(--bg) shadow-xs">
+          <div class="px-4 py-2">
+            <StatusBar client:only="react" />
+          </div>
+          <div class="px-4 pb-2">
             <SearchFilterBar client:only="react" />
           </div>
-        </Section>
+        </div>
         <Section size="md">
           <Container size='full' class='px-0!'>
             <Dropzone client:only="react" />
-            <div class="max-w-none min-w-0 wrap-break-words">
+            <div class="max-w-none min-w-0 wrap-break-words mt-4">
               <Output client:only="react" />
             </div>
           </Container>
         </Section>
       </div>
       <div class="hidden sm:block shrink-0 lg:gap-x-8">
-        <SettingsPanel client:only="react" />
+        <div class="sticky top-4">
+            <SettingsPanel client:only="react" />
+        </div>
       </div>
     </div>
   </Container>
