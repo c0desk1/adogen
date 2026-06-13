@@ -35,11 +35,11 @@ export const UI_TEXT = {
 };
 
 export const SITE = {
-  name: "A0",
+  name: "Adogen",
   tagline: "AI Metadata Generator for Microstock",
   description:
     "Generate SEO-optimized titles, keywords, and categories for Adobe Stock images instantly. Bring your own API key — supports Groq, Mistral, and more.",
-  url: "https://a0.c0desk1.my.id",
+  url: "https://adogen.c0desk1.my.id",
   ogImage: OGIMAGE,
   locale: "en_US",
   lang: "en",
@@ -52,7 +52,7 @@ export const SITE = {
 } as const;
 
 export const ORG = {
-  name: "A0",
+  name: "Adogen",
   url: SITE.url,
   logo: LOGO,
   sameAs: [] as string[],
