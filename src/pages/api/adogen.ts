@@ -1,7 +1,7 @@
 // src/pages/api/generate.ts
 import type { APIRoute } from 'astro';
 import { z } from 'astro/zod';
-import { MAX_TITLE_LENGTH, MAX_KEYWORDS_COUNT, parseMetadataResponse, STOCK_CATEGORIES, DEFAULT_METADATA_PROMPT } from '@/app/lib/engine';
+import { MAX_TITLE_LENGTH, MAX_KEYWORDS_COUNT, parseMetadataResponse, STOCK_CATEGORIES, DEFAULT_METADATA_PROMPT } from '@/lib/engine';
 
 const RequestSchema = z.object({
   imageBase64: z.string(),
