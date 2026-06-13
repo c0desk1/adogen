@@ -5,10 +5,11 @@ import {
   passthroughImageService 
 } from 'astro/config';
 
+import { SITE } from './src/consts';
+
 import react from '@astrojs/react';
 import tailwindcss from '@tailwindcss/vite';
 import cloudflare from '@astrojs/cloudflare';
-
 import mdx from '@astrojs/mdx';
 
 import { satteri } from '@astrojs/markdown-satteri';
@@ -20,7 +21,6 @@ import {
   transformerMetaHighlight,
   transformerRemoveLineBreak,
   transformerMetaWordHighlight
-
 } from '@shikijs/transformers'
 
 import { satteriCallout } from './src/lib/mdx/satteri-callout';
@@ -36,7 +36,7 @@ import { remarkHeadingId } from './src/lib/mdx/remark-heading-id';
 
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://adogen.web.id',
+  site: SITE.url,
   base: "/",
   trailingSlash: 'never',
   output: "server",
