@@ -1,0 +1,32 @@
+---
+import Icon from "./ui/icons/Icon.astro"
+import Button from "./ui/Button.astro"
+---
+
+<Button
+  id="theme-toggle"
+  variant="icon-outline"
+  size="sm"
+  class="inline-flex shrink-0 items-center p-1.5 cursor-pointer sm:border-none"
+  aria-label="Toggle Theme"
+>
+  <Icon name="sun" className="h-full w-full hidden dark:block"/>
+  <Icon name="moon" className="h-full w-full block dark:hidden"/>
+</Button>
+
+<script>
+  function setupThemeToggle() {
+    const toggleBtn = document.getElementById('theme-toggle');
+    if (!toggleBtn) return;
+    
+    const newBtn = toggleBtn.cloneNode(true);
+    toggleBtn.parentNode?.replaceChild(newBtn, toggleBtn);
+    newBtn.addEventListener('click', () => {
+      const isDark = document.documentElement.classList.toggle('dark');
+      document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+      localStorage.setItem('adogen-theme', isDark ? 'dark' : 'light');
+    });
+  }
+  setupThemeToggle();
+  document.addEventListener('astro:after-swap', setupThemeToggle);
+</script>

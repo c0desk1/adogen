@@ -1,0 +1,127 @@
+---
+// src/components/mdx/FileTree.astro
+import { fileIcons } from '@/components/ui/icons/file';
+
+const svg = fileIcons;
+const extIcons = fileIcons;
+---
+
+<div class="file-tree-container not-prose">
+  <div class="file-tree">
+    <slot />
+  </div>
+</div>
+
+<script define:vars={{ svg, extIcons }}>
+  (() => {
+    function getIcon(filename) {
+      const ext = filename.split(".").pop()?.toLowerCase() || "";
+      return extIcons[ext] ?? svg.file;
+    }
+    
+    function refreshFolderIcon(folderItem) {
+      const label = folderItem.querySelector(':scope > .file-tree-label');
+      const iconEl = label?.querySelector('.folder-icon');
+      if (!iconEl) return;
+
+      const isOpen = folderItem.classList.contains('open');
+      iconEl.innerHTML = isOpen
+        ? (svg['folder-open'] || svg.folder)
+        : svg.folder;
+    }
+
+    const initFileTreeEngine = () => {
+      const trees = document.querySelectorAll(".file-tree:not(.is-processed)");
+
+      trees.forEach((root) => {
+        root.classList.add("is-processed");
+
+        function processList(list) {
+          list.classList.add("file-tree-list");
+
+          for (const item of list.children) {
+            if (!(item instanceof HTMLLIElement)) continue;
+
+            let rawText = "";
+            let isHighlighted = false;
+            let isRemoved = false;
+            const childNodesToRemove = [];
+
+            for (const node of item.childNodes) {
+              if (node.nodeName === 'UL' || node.nodeName === 'OL') break;
+
+              if (node.nodeName === 'STRONG' || node.nodeName === 'B' || node.nodeName === 'MARK') {
+                isHighlighted = true;
+              }
+
+              if (node.nodeName === 'DEL' || node.nodeName === 'S' || node.nodeName === 'STRIKE') {
+                isRemoved = true;
+              }
+
+              rawText += node.textContent;
+              childNodesToRemove.push(node);
+            }
+
+            rawText = rawText.trim();
+            if (!rawText) continue;
+
+            const isFolder = rawText.endsWith("/");
+            const label = document.createElement("div");
+            label.className = "file-tree-label";
+
+            if (isRemoved) {
+              label.classList.add("is-removed");
+            } else if (isHighlighted) {
+              label.classList.add("is-highlighted");
+            }
+
+            childNodesToRemove.forEach(n => n.remove());
+
+            if (isFolder) {
+              const name = rawText.slice(0, -1);
+              item.classList.add("file-tree-folder");
+              item.classList.add("open");
+
+              label.innerHTML = `
+                <span class="icon folder-icon">${svg['folder-open'] || svg.folder}</span>
+                <span class="file-name">${name}</span>
+              `;
+
+              label.addEventListener('click', (e) => {
+                e.stopPropagation();
+                item.classList.toggle('open');
+                refreshFolderIcon(item);
+              });
+
+              const childrenContainer = document.createElement('div');
+              childrenContainer.className = 'file-tree-children';
+
+              while (item.firstChild && (item.firstChild.nodeName === 'UL' || item.firstChild.nodeName === 'OL')) {
+                childrenContainer.appendChild(item.firstChild);
+              }
+
+              item.appendChild(childrenContainer);
+            } else {
+              item.classList.add("file-tree-file");
+              label.innerHTML = `
+                <span class="icon file-icon">${getIcon(rawText)}</span>
+                <span class="file-name">${rawText}</span>
+              `;
+            }
+
+            item.prepend(label);
+          }
+        }
+
+        root.querySelectorAll("ul, ol").forEach(processList);
+      });
+    };
+
+    document.addEventListener("astro:page-load", initFileTreeEngine);
+    if (document.readyState !== "loading") {
+      initFileTreeEngine();
+    } else {
+      document.addEventListener("DOMContentLoaded", initFileTreeEngine);
+    }
+  })();
+</script>

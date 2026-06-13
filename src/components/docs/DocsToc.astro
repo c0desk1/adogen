@@ -1,0 +1,25 @@
+---
+import TocMinimal from './TocMinimal';
+
+interface Props {
+  headings: {
+    depth: number;
+    text: string;
+    slug: string;
+  }[];
+}
+
+const { headings } = Astro.props;
+
+const filteredHeadings = headings.filter(
+  (h) => h.depth >= 2 && h.depth <= 3
+);
+---
+
+{
+  filteredHeadings.length > 1 && (
+    <div class="hidden md:block fixed right-4 top-1/2 -translate-y-1/2 z-40">
+      <TocMinimal client:load headings={filteredHeadings} />
+    </div>
+  )
+}

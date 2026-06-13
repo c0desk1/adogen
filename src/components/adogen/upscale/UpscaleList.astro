@@ -1,0 +1,320 @@
+---
+// src/components/upscale/UpscaleList.astro
+import Icon from "@/components/ui/Icon.astro";
+import UpscaleTemplate from "./UpscaleTemplate.astro";
+---
+
+<div id="batch-empty" class="hidden flex-col items-center justify-center gap-3 py-16 text-center">
+  <div class="w-10 h-10 rounded-full border border-(--border) bg-(--surface) flex items-center justify-center opacity-35">
+    <span class="w-5 h-5 text-(--fg-muted)">
+      <Icon name="image" className="w-full h-full" />
+    </span>
+  </div>
+  <div>
+    <p class="text-[16px] font-medium text-(--fg-muted)">Queue is empty</p>
+    <p class="mt-1 text-[13px] text-(--fg-subtle)">Upload images above to get started</p>
+  </div>
+</div>
+
+<div id="batch-toolbar" class="hidden items-center justify-between mb-3">
+  <span id="batch-count" class="text-xs font-semibold text-(--fg-muted) uppercase tracking-widest"></span>
+  <div class="flex items-center gap-2">
+    <button id="batch-download-all" type="button"
+      class="hidden items-center gap-1.5 h-8 px-3 rounded-(--radius) text-xs font-medium
+             border border-(--border) bg-(--surface) text-(--fg-muted)
+             hover:text-(--fg) hover:border-(--border-strong)
+             transition-all duration-150 active:scale-[0.98]"
+    >
+      <svg class="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M7 1v9M4 7.5l3 3 3-3M1 12h12"/>
+      </svg>
+      Download All
+    </button>
+
+    <button id="batch-clear" type="button"
+      class="h-8 px-3 rounded-(--radius) text-xs font-medium
+             border border-(--border) bg-(--surface) text-(--fg-subtle)
+             hover:text-(--error) hover:border-(--error)/30
+             transition-all duration-150"
+    >
+      Clear all
+    </button>
+
+    <button id="batch-process-all" type="button"
+      class="hidden items-center gap-1.5 h-8 px-3 rounded-(--radius) text-xs font-semibold
+             bg-(--accent) text-(--accent-fg)
+             hover:opacity-90 active:scale-[0.98]
+             transition-all duration-150"
+    >
+      <svg class="w-3 h-3" viewBox="0 0 10 10" fill="currentColor"><path d="M2 1.5v7l6-3.5-6-3.5z"/></svg>
+      Process All
+    </button>
+  </div>
+</div>
+<ul id="batch-list" class="hidden flex-col gap-2.5" role="list"></ul>
+<UpscaleTemplate />
+
+<script>
+  type Status = 'idle' | 'processing' | 'done' | 'error';
+
+  interface QueueItem {
+    id: number;
+    file: File;
+    status: Status;
+    progress: number;
+    thumbUrl: string;
+    resultUrl: string | null;
+    origDims: string;
+    outDims: string | null;
+  }
+
+  const ST: Record<Status, { dot: string; label: string; badgeCls: string }> = {
+    idle:       { dot: 'bg-(--fg-subtle)',  label: 'Waiting',    badgeCls: 'bg-(--bg-subtle) text-(--fg-muted)'  },
+    processing: { dot: 'bg-(--warning)',    label: 'Processing', badgeCls: 'bg-(--warning)/10 text-(--warning)'  },
+    done:       { dot: 'bg-(--success)',    label: 'Done',       badgeCls: 'bg-(--success)/10 text-(--success)'  },
+    error:      { dot: 'bg-(--error)',      label: 'Failed',     badgeCls: 'bg-(--error)/10 text-(--error)'      },
+  };
+
+  let queue: QueueItem[] = [];
+  let uid = 0;
+
+  const emptyEl       = document.getElementById('batch-empty')!;
+  const toolbar       = document.getElementById('batch-toolbar')!;
+  const listEl        = document.getElementById('batch-list')!;
+  const countEl       = document.getElementById('batch-count')!;
+  const btnProcessAll = document.getElementById('batch-process-all')!;
+  const btnClear      = document.getElementById('batch-clear')!;
+  const btnDlAll      = document.getElementById('batch-download-all')!;
+  const tpl           = document.getElementById('batch-row-tpl') as HTMLTemplateElement;
+
+  function fmtBytes(b: number) {
+    return b < 1024 ** 2 ? `${(b / 1024).toFixed(0)} KB` : `${(b / 1024 ** 2).toFixed(1)} MB`;
+  }
+
+  function getDims(file: File): Promise<string> {
+    return new Promise(res => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload  = () => { res(`${img.naturalWidth}×${img.naturalHeight}`); URL.revokeObjectURL(url); };
+      img.onerror = () => { res('—'); URL.revokeObjectURL(url); };
+      img.src = url;
+    });
+  }
+
+  function row(id: number) {
+    return listEl.querySelector<HTMLElement>(`.batch-row[data-id="${id}"]`);
+  }
+
+  function syncUI() {
+    const hasItems = queue.length > 0;
+
+    emptyEl.classList.toggle('hidden', hasItems);
+    emptyEl.classList.toggle('flex', !hasItems);
+
+    toolbar.classList.toggle('hidden', !hasItems);
+    toolbar.classList.toggle('flex', hasItems);
+    listEl.classList.toggle('hidden', !hasItems);
+    listEl.classList.toggle('flex', hasItems);
+    countEl.textContent = `${queue.length} image${queue.length !== 1 ? 's' : ''}`;
+
+    const pending = queue.filter(q => q.status === 'idle' || q.status === 'error');
+    const showPA = pending.length > 1;
+    btnProcessAll.classList.toggle('hidden', !showPA);
+    btnProcessAll.classList.toggle('inline-flex', showPA);
+
+    const doneCount = queue.filter(q => q.status === 'done').length;
+    btnDlAll.classList.toggle('hidden', doneCount === 0);
+    btnDlAll.classList.toggle('inline-flex', doneCount > 0);
+  }
+
+  function applyStatus(id: number) {
+    const item = queue.find(q => q.id === id);
+    if (!item) return;
+    const el = row(id);
+    if (!el) return;
+    const st = item.status;
+
+    el.querySelector('.batch-overlay-processing')!.classList.toggle('hidden', st !== 'processing');
+    el.querySelector('.batch-overlay-processing')!.classList.toggle('flex', st === 'processing');
+    el.querySelector('.batch-overlay-done')!.classList.toggle('hidden', st !== 'done');
+    el.querySelector('.batch-overlay-done')!.classList.toggle('flex', st === 'done');
+    el.querySelector('.batch-overlay-error')!.classList.toggle('hidden', st !== 'error');
+    el.querySelector('.batch-overlay-error')!.classList.toggle('flex', st === 'error');
+
+    const pw = el.querySelector<HTMLElement>('.batch-progress-wrap')!;
+    pw.classList.toggle('hidden', st !== 'processing');
+    el.querySelector<HTMLElement>('.batch-progress-bar')!.style.width = `${item.progress}%`;
+
+    const badge = el.querySelector<HTMLElement>('.batch-badge')!;
+    const { dot, label, badgeCls } = ST[st];
+    badge.className = `batch-badge flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold flex-shrink-0 ${badgeCls}`;
+    badge.querySelector<HTMLElement>('.batch-badge-dot')!.className = `batch-badge-dot w-1.5 h-1.5 rounded-full ${dot}`;
+    badge.querySelector<HTMLElement>('.batch-badge-label')!.textContent = label;
+
+    el.querySelector<HTMLElement>('.batch-btn-upscale')!.classList.toggle('hidden', st !== 'idle');
+    const pctEl = el.querySelector<HTMLElement>('.batch-pct')!;
+    pctEl.classList.toggle('hidden', st !== 'processing');
+    if (st === 'processing') pctEl.textContent = `${item.progress}%`;
+    const dlBtn = el.querySelector<HTMLElement>('.batch-btn-download')!;
+    dlBtn.classList.toggle('hidden', st !== 'done');
+    dlBtn.classList.toggle('inline-flex', st === 'done');
+    el.querySelector<HTMLElement>('.batch-btn-retry')!.classList.toggle('hidden', st !== 'error');
+
+    if (item.outDims) {
+      el.querySelector<HTMLElement>('.batch-arrow')!.classList.remove('hidden');
+      el.querySelector<HTMLElement>('.batch-out-dims')!.classList.remove('hidden');
+      el.querySelector<HTMLElement>('.batch-out-dims')!.textContent = item.outDims;
+    }
+    syncUI();
+  }
+
+  function setProgress(id: number, pct: number) {
+    const item = queue.find(q => q.id === id);
+    if (!item) return;
+    item.progress = pct;
+    const el = row(id);
+    if (!el) return;
+    el.querySelector<HTMLElement>('.batch-progress-bar')!.style.width = `${pct}%`;
+    el.querySelector<HTMLElement>('.batch-pct')!.textContent = `${pct}%`;
+  }
+
+  async function canvasUpscale(file: File, scale: number): Promise<{ blob: Blob; w: number; h: number }> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const src = URL.createObjectURL(file);
+      img.onload = () => {
+        const c = document.createElement('canvas');
+        c.width = img.naturalWidth * scale;
+        c.height = img.naturalHeight * scale;
+        const ctx = c.getContext('2d')!;
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(src);
+        c.toBlob(blob => {
+          if (!blob) return reject(new Error('Export failed'));
+          resolve({ blob, w: c.width, h: c.height });
+        }, 'image/png');
+      };
+      img.onerror = () => { URL.revokeObjectURL(src); reject(new Error('Load failed')); };
+      img.src = src;
+    });
+  }
+
+  async function processItem(id: number) {
+    const item = queue.find(q => q.id === id);
+    if (!item || item.status === 'processing' || item.status === 'done') return;
+
+    const scaleEl = document.getElementById('upscale-scale') as HTMLSelectElement | null;
+    const scale = parseInt(scaleEl?.value ?? '2', 10) || 2;
+
+    item.status = 'idle';
+    item.progress = 0;
+    applyStatus(id);
+    item.status = 'processing';
+    applyStatus(id);
+
+    let pct = 0;
+    const ticker = setInterval(() => {
+      pct = Math.min(88, pct + Math.random() * 14 + 5);
+      setProgress(id, Math.round(pct));
+    }, 160);
+
+    try {
+      const { blob, w, h } = await canvasUpscale(item.file, scale);
+      clearInterval(ticker);
+      setProgress(id, 100);
+
+      if (item.resultUrl) URL.revokeObjectURL(item.resultUrl);
+      item.resultUrl = URL.createObjectURL(blob);
+      item.outDims   = `${w}×${h}`;
+      item.status    = 'done';
+
+      const el = row(id);
+      if (el) {
+        const dl = el.querySelector<HTMLAnchorElement>('.batch-btn-download')!;
+        dl.href     = item.resultUrl;
+        dl.download = `upscaled-2x_${item.file.name}`;
+      }
+      await new Promise(r => setTimeout(r, 120));
+      applyStatus(id);
+    } catch {
+      clearInterval(ticker);
+      item.status = 'error';
+      applyStatus(id);
+    }
+  }
+
+  function removeItem(id: number) {
+    const item = queue.find(q => q.id === id);
+    if (!item) return;
+    if (item.thumbUrl)  URL.revokeObjectURL(item.thumbUrl);
+    if (item.resultUrl) URL.revokeObjectURL(item.resultUrl);
+    queue = queue.filter(q => q.id !== id);
+    row(id)?.remove();
+    syncUI();
+    if (queue.length === 0) document.dispatchEvent(new CustomEvent('upscale:queue-cleared'));
+  }
+
+  async function addItem(file: File) {
+    uid++;
+    const thumbUrl = URL.createObjectURL(file);
+    const origDims = await getDims(file);
+    const item: QueueItem = {
+      id: uid, file, status: 'idle', progress: 0,
+      thumbUrl, resultUrl: null, origDims, outDims: null,
+    };
+    queue.push(item);
+
+    const frag = tpl.content.cloneNode(true) as DocumentFragment;
+    const el   = frag.querySelector<HTMLElement>('.batch-row')!;
+    el.dataset.id = String(item.id);
+
+    const indexSpan = el.querySelector('.batch-index');
+    if (indexSpan) indexSpan.textContent = String(uid);
+
+    const img = el.querySelector<HTMLImageElement>('.batch-thumb')!;
+    img.src = thumbUrl;
+    img.alt = file.name;
+
+    el.querySelector<HTMLElement>('.batch-name')!.textContent = file.name;
+    el.querySelector<HTMLElement>('.batch-dims')!.textContent = `${origDims} · ${fmtBytes(file.size)}`;
+
+    el.querySelector<HTMLElement>('.batch-btn-upscale')!.addEventListener('click', () => processItem(item.id));
+    el.querySelector<HTMLElement>('.batch-btn-retry')!.addEventListener('click', () => processItem(item.id));
+    el.querySelector<HTMLElement>('.batch-btn-delete')!.addEventListener('click', () => removeItem(item.id));
+
+    listEl.appendChild(frag);
+    applyStatus(item.id);
+  }
+
+  btnProcessAll.addEventListener('click', () => {
+    queue
+      .filter(q => q.status === 'idle' || q.status === 'error')
+      .forEach((q, i) => setTimeout(() => processItem(q.id), i * 250));
+  });
+
+  btnClear.addEventListener('click', () => {
+    queue.forEach(q => {
+      if (q.thumbUrl)  URL.revokeObjectURL(q.thumbUrl);
+      if (q.resultUrl) URL.revokeObjectURL(q.resultUrl);
+    });
+    queue = [];
+    listEl.innerHTML = '';
+    syncUI();
+    document.dispatchEvent(new CustomEvent('upscale:queue-cleared'));
+  });
+
+  btnDlAll.addEventListener('click', () => {
+    queue.filter(q => q.status === 'done' && q.resultUrl).forEach(q => {
+      const a = document.createElement('a');
+      a.href = q.resultUrl!;
+      a.download = `upscaled_${q.file.name}`;
+      a.click();
+    });
+  });
+
+  document.addEventListener('upscale:file-raw', (e: Event) => {
+    addItem((e as CustomEvent<{ file: File }>).detail.file);
+  });
+</script>

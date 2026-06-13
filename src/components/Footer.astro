@@ -1,0 +1,58 @@
+---
+// src/components/Footer.astro
+import { SITE, NAV, ROUTES } from '@/consts';
+import Icon from '@/components/ui/icons/Icon.astro';
+import Container from './ui/Container.astro';
+import Section from './ui/Section.astro';
+
+const currentYear = new Date().getFullYear();
+const copyrightYear = currentYear > SITE.foundingYear 
+  ? `${SITE.foundingYear}–${currentYear}` 
+  : SITE.foundingYear;
+---
+
+<footer class="font-medium border-t border-(--border-subtle) bg-(--bg) mt-auto shrink-0">
+  <Section size="sm">
+    <Container size="xl">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12 mb-12">
+        <div class="flex flex-col gap-3">
+          <a href={ROUTES.home} class="flex items-center gap-2 no-underline w-fit" aria-label={SITE.name}>
+            <Icon name='logo' className='w-6 h-6' />
+            <span class="font-semibold text-(--fg-strong) hidden">{SITE.name}</span>
+          </a>
+        </div>
+        {NAV.footerBar.map((section) => (
+          <div class="flex flex-col gap-4">
+            <span class="text-[11px] font-bold uppercase tracking-widest text-(--fg-strong)">
+              {section.title}
+            </span>
+            <nav class="flex flex-col items-start gap-2.5">
+              {section.items.map((item) => (
+                <a
+                  href={item.href}
+                  class="w-fit text-[13px] text-(--fg-muted) hover:text-(--fg-strong) transition-colors"
+                  target={item.isExternal ? '_blank' : undefined}
+                  rel={item.isExternal ? 'noopener noreferrer' : undefined}
+                >
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+          </div>
+        ))}
+      </div>
+      <div class="flex flex-col sm:flex-row items-center justify-between pt-8 border-t border-(--border-subtle)/20 gap-4">
+        <p class="text-[13px] text-(--fg-muted)">
+          &copy; {copyrightYear} {SITE.name}. All rights reserved.
+        </p>
+        
+        <div class="flex gap-6 text-[12px] text-(--fg-muted)">
+          <a href={SITE.url} class="hover:text-(--fg-strong) transition-colors">
+            {SITE.url.replace(/^https?:\/\//, '')}
+          </a>
+          <span>{SITE.lang.toUpperCase()}</span>
+        </div>
+      </div>
+    </Container>
+  </Section>
+</footer>

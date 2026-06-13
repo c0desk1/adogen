@@ -1,0 +1,71 @@
+---
+import Icon from "@/components/ui/Icon.astro"
+import Spinner from "@/components/ui/Spinner.astro";
+---
+
+<template id="batch-row-tpl">
+  <li class="batch-row rounded-xl border border-(--border) bg-(--surface) hover:border-(--border-strong) transition-all duration-150 group"data-id="">
+    <div class="flex flex-col sm:flex-row gap-3 p-3">
+      <div class="relative w-full sm:w-14 h-32 sm:h-14 rounded-lg shrink-0 overflow-hidden border border-(--border) bg-(--bg-muted) bg-[repeating-conic-gradient(var(--bg-muted)_0%_25%,transparent_0%_50%)_0_0/10px_10px]">
+        <img class="batch-thumb w-full h-full object-cover" src="" alt="" />
+        <span class="absolute top-1 left-1 bg-black/60 text-white text-xs font-mono px-1.5 py-0.5 rounded-md backdrop-blur-sm z-10">#<span class="batch-index"></span></span>
+        <div class="batch-overlay-processing absolute inset-0 hidden bg-(--bg)/70 backdrop-blur-[1px] items-center justify-center">
+          <Spinner size="sm" />
+        </div>
+        <div class="batch-overlay-done absolute inset-0 hidden bg-(--success)/15 items-center justify-center">
+          <div class="w-6 h-6 rounded-full bg-(--success) flex items-center justify-center shadow-sm">
+            <svg class="w-3.5 h-3.5 text-white" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M2.5 6l2.5 2.5L9.5 3.5"/>
+            </svg>
+          </div>
+        </div>
+        <div class="batch-overlay-error absolute inset-0 hidden bg-(--error)/15 items-center justify-center">
+          <div class="w-6 h-6 rounded-full bg-(--error) flex items-center justify-center shadow-sm">
+            <svg class="w-3 h-3 text-white" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M2 2l6 6M8 2l-6 6"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info & actions -->
+      <div class="flex-1 min-w-0">
+        <div class="flex flex-wrap items-start justify-between gap-2">
+          <div class="flex-1 min-w-0">
+            <p class="batch-name text-sm font-medium text-(--fg) truncate mb-2"></p>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span class="batch-dims text-xs text-(--fg-subtle) font-mono"></span>
+              <span class="batch-arrow hidden text-xs text-(--border)">→</span>
+              <span class="batch-out-dims hidden text-xs text-(--accent) font-mono"></span>
+            </div>
+          </div>
+          <div class="batch-badge hidden items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0">
+            <div class="batch-badge-dot w-1.5 h-1.5 rounded-full"></div>
+            <span class="batch-badge-label"></span>
+          </div>
+        </div>
+
+        <div class="batch-progress-wrap hidden mt-2 h-1 rounded-full bg-(--border) overflow-hidden">
+          <div class="batch-progress-bar h-full bg-(--accent) rounded-full transition-[width] duration-150 ease-out" style="width:0%"></div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-end gap-1.5 mt-2">
+          <button type="button" class="batch-btn-upscale h-7 px-2.5 rounded-md text-xs font-medium border border-(--border) bg-(--bg) text-(--fg-muted) hover:text-(--fg) hover:border-(--border-strong) transition-all">Upscale</button>
+          <span class="batch-pct hidden text-xs font-mono font-semibold text-(--warning) w-8 text-right"></span>
+          <a class="batch-btn-download hidden items-center gap-1 h-7 px-2.5 rounded-md no-underline text-xs font-semibold border border-(--success)/30 bg-(--success)/10 text-(--success) hover:bg-(--success)/18 transition-all" href="#" download>
+             <span class="inline-flex shrink-0 items-center w-4 h-4">
+              <Icon name="download" className="w-full h-full" />
+            </span>
+            Download
+          </a>
+          <button type="button" class="batch-btn-retry hidden h-7 px-2.5 rounded-md text-xs font-medium border border-(--error)/25 bg-(--error)/8 text-(--error) hover:bg-(--error)/15 transition-all">Retry</button>
+          <button type="button" class="batch-btn-delete h-7 w-7 rounded-md flex items-center justify-center border border-transparent text-(--fg-subtle) hover:border-(--border) hover:text-(--error) hover:bg-(--error)/5 transition-all" aria-label="Remove">
+             <span class="inline-flex shrink-0 items-center w-4 h-4">
+              <Icon name="trash" className="w-full h-full" />
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </li>
+</template>

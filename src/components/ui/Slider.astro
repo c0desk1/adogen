@@ -1,0 +1,92 @@
+---
+// src/components/ui/Slider.astro
+import type { HTMLAttributes } from 'astro/types';
+import { cn } from "@/lib/cn";
+import Badge from './Badge.astro';
+
+interface Props extends Omit<HTMLAttributes<'input'>, 'value'> {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step?: number;
+  leftLabel?: string;
+  rightLabel?: string;
+}
+
+const {
+  label,
+  value,
+  min,
+  max,
+  step = 1,
+  leftLabel,
+  rightLabel,
+  class: className,
+  id,
+  ...rest
+} = Astro.props;
+
+const autoId = id || `slider-${label.toLowerCase().replace(/\s+/g, '-')}`;
+const percentage = max === min ? 0 : ((value - min) / (max - min)) * 100;
+---
+
+<div class={cn("flex flex-col gap-2.5", className)} data-slider-root>
+  <div class="flex items-center justify-between mb-2">
+    <label for={autoId} class="text-[13px] font-medium text-(--fg)">
+      {label}
+    </label>
+    <Badge data-slider-badge class="text-(--accent)!">{value}</Badge>
+  </div>
+
+  <input
+    id={autoId}
+    type="range"
+    min={min}
+    max={max}
+    step={step}
+    value={value}
+    aria-valuemin={min}
+    aria-valuemax={max}
+    aria-valuenow={value}
+    class="focus:outline-none w-full cursor-pointer"
+    style={`--value-percent: ${percentage}%;`}
+    {...rest as HTMLAttributes<'input'>}
+  />
+
+  {(leftLabel || rightLabel) && (
+    <div class="flex justify-between text-[12px] font-medium text-(--fg-dim)">
+      <span>{leftLabel}</span>
+      <span>{rightLabel}</span>
+    </div>
+  )}
+</div>
+
+<script>
+  const initSliders = () => {
+    const sliderRoots = document.querySelectorAll('[data-slider-root]:not([data-initialized])');
+
+    sliderRoots.forEach((root) => {
+      root.setAttribute('data-initialized', 'true');
+
+      const input = root.querySelector('input[type="range"]') as HTMLInputElement | null;
+      const badge = root.querySelector('[data-slider-badge]');
+      if (!input || !badge) return;
+
+      const min = parseFloat(input.min) || 0;
+      const max = parseFloat(input.max) || 100;
+
+      const handleInputInteraction = () => {
+        const currentVal = parseFloat(input.value);
+        badge.textContent = input.value;
+        const percentage = max === min ? 0 : ((currentVal - min) / (max - min)) * 100;
+        input.style.setProperty('--value-percent', `${percentage}%`);
+      };
+
+      input.addEventListener('input', handleInputInteraction);
+    });
+  };
+
+  initSliders();
+  document.addEventListener("astro:page-load", initSliders);
+</script>

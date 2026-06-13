@@ -1,0 +1,19 @@
+---
+// src/components/mdx/Table.astro
+---
+
+<div class="table-wrapper relative overflow-hidden"> 
+  <div class="table-content overflow-x-auto">
+    <table class="min-w-full border-collapse">
+      <slot />
+    </table>
+  </div>
+</div>
+
+<style>
+  .table-wrapper th,
+  .table-wrapper td {
+    padding: 0.75rem 1rem;
+    white-space: nowrap;
+  }
+</style>

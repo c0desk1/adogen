@@ -1,0 +1,57 @@
+---
+// src/components/DocsNavbar.astro
+import { getCollection } from 'astro:content';
+import { 
+    SITE, 
+    NAV, 
+    ROUTES 
+} from '@/consts';
+
+import Container from '../ui/Container.astro';
+import Icon from '../ui/Icon.astro';
+import Theme from '../Theme.astro';
+import DocsSidebarMobile from './DocsSidebarMobile.astro';
+
+const currentPath = Astro.url.pathname;
+
+const docs = await getCollection('docs');
+const sidebarItems = docs.sort((a, b) => (a.data.order ?? 0) - (b.data.order ?? 0));
+const primaryRootId = 'overview';
+const cleanSlug = Astro.params.slug;
+---
+
+<header class="sticky top-0 z-50 border-b border-(--border-subtle) bg-(--bg-subtle)">
+    <Container size='full'>
+        <div class="mx-auto h-(--header-height) w-full flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <a href={ROUTES.home} aria-label={SITE.name}
+                    class="inline-flex shrink-0 items-center gap-1.5 font-medium text-2xl text-(--fg) hover:opacity-80 transition-opacity"
+                    >
+                    <Icon name="logo" className='w-6 h-6' />
+                    <span class="hidden w-0!">{SITE.name}</span>
+                </a>
+                <nav class="hidden lg:flex items-center gap-2 text-[14px] font-medium">
+                    {NAV.navBar.map((item) => (
+                        <a
+                            href={item.href}
+                            class:list={[
+                                "transition-colors rounded-md px-2 py-1",
+                                currentPath === item.href
+                                ? "text-(--fg-strong)"
+                                : "text-(--fg-muted) hover:text-(--fg) hover:bg-(--bg-muted)",
+                            ]}
+                            target={item.isExternal ? '_blank' : undefined}
+                            rel={item.isExternal ? 'noopener noreferrer' : undefined}
+                            >
+                            {item.label}
+                        </a>
+                    ))}
+                </nav>
+            </div>
+            <div class="flex items-center gap-3">
+                <Theme />
+                <DocsSidebarMobile {sidebarItems} {primaryRootId} {cleanSlug} />
+            </div>
+        </div>
+    </Container>
+</header>

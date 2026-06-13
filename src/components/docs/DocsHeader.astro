@@ -1,0 +1,37 @@
+---
+// src/components/ui/DocsHeader.astro
+import { formatDate } from '@/consts';
+import AskAI from './DocsAskAi.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  lastUpdated?: Date;
+  content?: string;
+}
+
+const { title, description, lastUpdated, content = '' } = Astro.props;
+---
+
+<header class="mb-10 space-y-4">
+  <h1 class="text-heading-32 md:text-heading-40 font-semibold text-(--fg-strong) tracking-tight leading-tight">
+    {title}
+  </h1>
+  {lastUpdated && (
+    <div class="flex items-center gap-2 text-body-14 text-(--fg-muted)">
+      <span class="inline-flex shrink-0 items-center text-(--fg-muted)/60 font-normal lg:hidden">
+        <AskAI label="Ask AI" pageTitle={title} pageContent={content} /> 
+        |
+      </span>
+      <time datetime={lastUpdated.toISOString()} class="text-(--fg-muted)/80">
+        <span>Updated: </span>
+        {formatDate(lastUpdated)}
+      </time>
+    </div>
+  )}
+  {description && (
+    <p class="text-body-16 text-(--fg-muted) leading-relaxed max-w-3xl">
+      {description}
+    </p>
+  )}
+</header>

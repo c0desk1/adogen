@@ -1,0 +1,209 @@
+---
+// src/components/ui/Select.astro
+import type { HTMLAttributes } from 'astro/types';
+import Icon from './Icon.astro';
+import { cn } from '@/lib/cn';
+
+interface Option {
+  value: string;
+  label: string;
+}
+
+interface Props extends Omit<HTMLAttributes<'select'>, 'value'> {
+  label?: string;
+  error?: string;
+  options: Option[];
+  value?: string;
+}
+
+const {
+  label,
+  error,
+  options = [],
+  id,
+  class: className,
+  value,
+  disabled,
+  name,
+  ...rest
+} = Astro.props;
+
+const selectId = id || label?.toLowerCase().replace(/\s+/g, '-');
+const activeOption = options.find((opt) => opt.value === value) || options[0];
+---
+
+<div class:list={["flex flex-col gap-1.5 w-full", className]} data-select-root>
+  {label && (
+    <label for={selectId} class="text-[13px] font-medium text-(--fg) mb-2">
+      {label}
+    </label>
+  )}
+  <div class="relative w-full">
+    <select 
+      name={name} 
+      id={selectId} 
+      class="sr-only" 
+      tabindex="-1" 
+      disabled={disabled}
+      {...rest as HTMLAttributes<'select'>}
+    >
+      {options.map((opt) => (
+        <option value={opt.value} selected={opt.value === value}>{opt.label}</option>
+      ))}
+    </select>
+    <button
+      type="button"
+      data-select-trigger
+      disabled={disabled}
+      class={cn(
+        "flex items-center justify-between w-full h-9 pl-3 pr-3 text-[13px] rounded-md border bg-transparent cursor-pointer",
+        "focus:outline-none focus:ring-2 focus:ring-(--accent-ring) focus:border-(--accent)",
+        "disabled:opacity-40 disabled:cursor-not-allowed",
+        error 
+          ? "border-(--error) text-(--error) focus:border-(--error) focus:ring-(--error)" 
+          : "border-(--border) text-(--fg-strong) hover:bg-(--bg-muted)/30"
+      )}
+    >
+      <span data-select-label class="truncate">{activeOption?.label || value}</span>
+      <span data-select-arrow class="w-4 h-4 text-(--fg-muted) shrink-0">
+        <Icon name="select"  className="w-full h-full" />
+      </span>
+    </button>
+    <div 
+      data-select-dropdown
+      data-options-container
+      class="hidden absolute left-0 right-0 top-full mt-1.5 max-h-60 overflow-y-auto bg-(--surface) border border-(--border) rounded-md shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] p-1.5 space-y-1 z-50 animate-in fade-in slide-in-from-top-1 duration-200"
+    >
+      {options.map((opt) => {
+        const isSelected = value === opt.value;
+        return (
+          <button
+            type="button"
+            data-select-option={opt.value}
+            data-option-label={opt.label}
+            class:list={[
+              "flex items-center justify-between w-full px-3 py-2 text-[13px] font-medium text-left transition-colors gap-1.5 cursor-pointer",
+              isSelected 
+                ? 'bg-(--accent)/10 text-(--accent)' 
+                : 'text-(--fg-strong) hover:bg-(--bg-muted)'
+            ]}
+          >
+            <span class="truncate">{opt.label}</span>
+            <Icon data-select-check name="check" 
+              className={cn(
+                "w-4 h-4 shrink-0 text-(--accent)", 
+                !isSelected && "hidden"
+              )} />
+          </button>
+        )
+      })}
+    </div>
+  </div>
+  {error && <p class="text-[13px] font-medium text-(--error)">{error}</p>}
+</div>
+
+<script>
+  const initCustomSelects = () => {
+    const selectRoots = document.querySelectorAll('[data-select-root]:not([data-initialized])');
+
+    selectRoots.forEach((root) => {
+      root.setAttribute('data-initialized', 'true');
+
+      const nativeSelect = root.querySelector('select') as HTMLSelectElement | null;
+      const trigger = root.querySelector('[data-select-trigger]') as HTMLButtonElement | null;
+      const dropdown = root.querySelector('[data-select-dropdown]') as HTMLDivElement | null;
+      const arrow = root.querySelector('[data-select-arrow]');
+      const labelSpan = root.querySelector('[data-select-label]');
+      
+      if (!nativeSelect || !trigger || !dropdown || !arrow || !labelSpan) return;
+
+      const syncActiveVisualState = () => {
+        const container = root.querySelector('[data-options-container]');
+        if (!container) return;
+
+        const activeValue = nativeSelect.value;
+        const matchedOption = Array.from(nativeSelect.options).find(o => o.value === activeValue);
+        
+        if (labelSpan && matchedOption) {
+          labelSpan.textContent = matchedOption.textContent;
+        }
+
+        const customOptionButtons = container.querySelectorAll('[data-select-option]');
+        customOptionButtons.forEach((btn) => {
+          const btnValue = btn.getAttribute('data-select-option');
+          const checkIcon = btn.querySelector('[data-select-check]');
+
+          if (btnValue === activeValue) {
+            btn.classList.add('bg-(--accent)/10', 'text-(--accent)');
+            btn.classList.remove('text-(--fg-strong)', 'hover:bg-(--bg-muted)');
+            checkIcon?.classList.remove('hidden');
+          } else {
+            btn.classList.remove('bg-(--accent)/10', 'text-(--accent)');
+            btn.classList.add('text-(--fg-strong)', 'hover:bg-(--bg-muted)');
+            checkIcon?.classList.add('hidden');
+          }
+        });
+      };
+
+      const rebuildCustomOptions = () => {
+        const container = root.querySelector('[data-options-container]');
+        if (!container) return;
+        container.innerHTML = '';
+
+        Array.from(nativeSelect.options).forEach((option) => {
+          const btn = document.createElement('button');
+
+          btn.type = 'button';
+          btn.className = "flex items-center justify-between w-full px-3 py-2 text-left text-[13px] text-(--fg-strong) hover:bg-(--bg-muted) rounded-md transition-colors duration-150 group cursor-pointer";
+          btn.setAttribute('data-select-option', option.value);
+          btn.setAttribute('data-option-label', option.textContent || '');
+        
+
+          btn.innerHTML = `
+            <span class="truncate">${option.textContent}</span>
+            <svg data-select-check class="hidden w-4 h-4 shrink-0 text-(--accent)" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          `;
+
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            nativeSelect.value = option.value;
+            nativeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            closeDropdown();
+          });
+
+          container.appendChild(btn);
+        });
+
+        syncActiveVisualState();
+      };
+
+      const openDropdown = () => { dropdown.classList.remove('hidden'); arrow.classList.add('rotate-180'); };
+      const closeDropdown = () => { dropdown.classList.add('hidden'); arrow.classList.remove('rotate-180'); };
+      
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (dropdown.classList.contains('hidden')) openDropdown(); else closeDropdown();
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!root.contains(e.target as Node)) closeDropdown();
+      });
+
+      nativeSelect.addEventListener('change', () => {
+        syncActiveVisualState();
+      });
+
+      rebuildCustomOptions();
+
+      const observer = new MutationObserver(() => {
+        rebuildCustomOptions();
+      });
+      observer.observe(nativeSelect, { childList: true });
+    });
+  };
+
+  initCustomSelects();
+  document.addEventListener("astro:page-load", initCustomSelects);
+</script>

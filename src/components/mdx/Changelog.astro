@@ -1,0 +1,88 @@
+---
+// src/components/mdx/Changelog.astro
+
+const html = await Astro.slots.render('default');
+const releaseRegex = /(<h[234][^>]*>[\s\S]*?<\/h[234]>)\s*([\s\S]*?)(?=<h[234][^>]*>[\s\S]*?<\/h[234]>|$)/gi;
+const releases: { heading: string; content: string }[] = [];
+let match;
+while ((match = releaseRegex.exec(html)) !== null) {
+  releases.push({
+    heading: match[1].trim(),
+    content: match[2].trim(),
+  });
+}
+
+if (releases.length === 0) {
+  releases.push({ heading: '', content: html });
+}
+---
+
+<div class="relative my-6 md:my-8 pl-8 sm:pl-10 changelog-wrapper">
+  <div class="absolute left-1 w-px border-l border-dashed border-(--prose-border) changelog-line" style="top:0; bottom:0;"></div>
+  
+  <div class="space-y-8">
+    {releases.map((release) => (
+      <div class="relative changelog-item">
+        {release.heading && (
+          <div class="relative flex items-center mb-2">
+            <div class="absolute -left-8 sm:-left-10 w-2.5 h-2.5 rounded-full bg-(--prose-accent) border border-(--prose-border) z-10 changelog-bullet"></div>
+            <div class="changelog-version font-medium text-(--prose-fg-strong) mt-0!" set:html={release.heading} />
+          </div>
+        )}
+        {release.content && (
+          <div class="changelog-items space-y-1 mt-1" set:html={release.content} />
+        )}
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .changelog-item :global(h2),
+  .changelog-item :global(h3),
+  .changelog-item :global(h4) {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+  .changelog-item :global(p) {
+    margin-top: 0 !important;
+    margin-bottom: 0.5rem !important;
+  }
+  .changelog-item :global(ul) {
+    margin-top: 0 !important;
+    margin-bottom: 0.5rem !important;
+  }
+</style>
+
+<script>
+  function adjustChangelogLines() {
+    const wrappers = document.querySelectorAll('.changelog-wrapper');
+    
+    wrappers.forEach(wrapper => {
+      const line = wrapper.querySelector('.changelog-line') as HTMLElement | null;
+      const bullets = wrapper.querySelectorAll('.changelog-item .changelog-bullet');
+      if (!line || bullets.length === 0) return;
+
+      const firstBullet = bullets[0] as HTMLElement;
+      const lastBullet = bullets[bullets.length - 1] as HTMLElement;
+
+      const wrapperRect = wrapper.getBoundingClientRect();
+      const firstBulletRect = firstBullet.getBoundingClientRect();
+      const lastBulletRect = lastBullet.getBoundingClientRect();
+
+      const top = firstBulletRect.top - wrapperRect.top + firstBullet.offsetHeight / 2;
+      const bottom = wrapperRect.bottom - (lastBulletRect.bottom - lastBullet.offsetHeight / 2);
+
+      line.style.top = `${top}px`;
+      line.style.bottom = `${bottom}px`;
+    });
+  }
+
+  document.addEventListener('astro:page-load', adjustChangelogLines);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', adjustChangelogLines);
+  } else {
+    adjustChangelogLines();
+  }
+  window.addEventListener('resize', adjustChangelogLines);
+</script>

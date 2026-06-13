@@ -1,0 +1,58 @@
+---
+---
+
+<div id="history-panel" class="w-full flex flex-col gap-4 p-5 border border-neutral-200 rounded-xl bg-white shadow-sm">
+  <div class="flex items-center justify-between">
+    <h2 class="text-xs font-semibold text-neutral-900 uppercase tracking-wider">History</h2>
+    <div id="status-indicator" class="w-2 h-2 rounded-full bg-neutral-300"></div>
+  </div>
+
+  <div id="history-list" class="flex flex-col gap-2">
+    <p class="text-sm text-neutral-500 animate-pulse">Loading data...</p>
+  </div>
+</div>
+
+<script>
+  // 1. Definisikan tipe data agar TypeScript paham strukturnya
+  interface HistoryItem {
+    filename: string;
+    engine: string;
+    title: string;
+    category: string;
+  }
+
+  async function loadHistory() {
+    const list = document.getElementById('history-list');
+    const indicator = document.getElementById('status-indicator');
+
+    try {
+      const res = await fetch('/api/history.json');
+      // 2. Casting ke array dari HistoryItem
+      const data = (await res.json()) as HistoryItem[];
+
+      if (!list) return;
+
+      if (data.length === 0) {
+        list.innerHTML = '<p class="text-xs text-neutral-400 italic">No history found.</p>';
+        return;
+      }
+
+      list.innerHTML = data.map((item) => `
+        <div class="group flex flex-col p-3 rounded-lg border border-neutral-100 bg-neutral-50 hover:border-neutral-300 transition-all">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-xs font-medium text-neutral-800 truncate max-w-[150px]">${item.filename}</span>
+            <span class="text-[10px] font-mono text-neutral-400 bg-neutral-100 px-1 py-0.5 rounded">${item.engine}</span>
+          </div>
+          <p class="text-[11px] text-neutral-500 line-clamp-1">${item.title}</p>
+        </div>
+      `).join('');
+      
+      indicator?.classList.replace('bg-neutral-300', 'bg-emerald-500');
+    } catch (e) {
+      console.error(e);
+      if (list) list.innerHTML = '<p class="text-xs text-red-500">Failed to load history.</p>';
+    }
+  }
+
+  loadHistory();
+</script>

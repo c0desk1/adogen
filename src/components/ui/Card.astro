@@ -1,0 +1,77 @@
+---
+// src/components/ui/Card.astro
+import type { HTMLAttributes } from 'astro/types';
+import { cn } from "@/lib/cn";
+
+type CardPadding = 'none' | 'sm' | 'md' | 'lg';
+type CardRadius = 'sm' | 'md' | 'lg';
+type CardVariant =
+  | 'default'
+  | 'elevated'
+  | 'outline'
+  | 'ghost'
+  | 'primary'
+  | 'secondary'
+  | 'icon'
+  | 'icon-outline'
+  | 'icon-ghost'
+  | 'icon-left'
+  | 'icon-right';
+
+interface Props extends HTMLAttributes<'div'> {
+  variant?: CardVariant;
+  hover?: boolean;
+  padding?: CardPadding;
+  radius?: CardRadius;
+}
+
+const {
+  variant = 'default',
+  hover = false,
+  padding = 'md',
+  radius = 'md',
+  class: className,
+  ...rest
+} = Astro.props;
+
+const variantClasses: Record<CardVariant, string> = {
+  default:   'border border-(--border) bg-(--bg)',
+  elevated:  'border border-(--border) bg-(--bg) shadow-(--shadow-md)',
+  outline:   'border border-(--border) bg-transparent',
+  ghost:     'border-none bg-(--bg-subtle)',
+  primary:   'border border-(--border) bg-(--accent-soft)',
+  secondary: 'border border-(--border) bg-(--bg-subtle)',
+  icon:      'border border-(--border) bg-(--bg) flex items-center justify-center',
+  'icon-outline': 'border-2 border-(--border-strong) bg-transparent flex items-center justify-center',
+  'icon-ghost':   'border-none bg-transparent flex items-center justify-center',
+  'icon-left':    'flex flex-row items-center gap-2 border border-(--border) bg-(--bg)',
+  'icon-right':   'flex flex-row-reverse items-center gap-2 border border-(--border) bg-(--bg)',
+};
+
+const paddingMap: Record<CardPadding, string> = {
+  none: 'p-0',
+  sm: 'p-2',
+  md: 'p-4',
+  lg: 'p-6',
+};
+
+const radiusMap: Record<CardRadius, string> = {
+  sm: 'rounded-md',
+  md: 'rounded-lg',
+  lg: 'rounded-2xl',
+};
+---
+
+<div
+  class={cn(
+    'min-w-0',
+    variantClasses[variant],
+    paddingMap[padding],
+    radiusMap[radius],
+    hover && 'transition-all duration-200 hover:shadow-(--shadow-md) cursor-pointer',
+    className
+  )}
+  {...rest as HTMLAttributes<'div'>}
+>
+  <slot />
+</div>

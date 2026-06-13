@@ -1,0 +1,67 @@
+---
+// src/components/ui/DocsPager.astro
+import type { CollectionEntry } from "astro:content";
+import Icon from "../ui/Icon.astro";
+
+interface Props {
+  prev?: CollectionEntry<"docs"> | null;
+  next?: CollectionEntry<"docs"> | null;
+  primaryRootId: string;
+}
+
+const { prev, next, primaryRootId } = Astro.props;
+
+const getHref = (item: CollectionEntry<"docs">) => {
+  const isRoot = item.id === primaryRootId;
+  return isRoot ? '/docs' : `/docs/${item.data.slug || item.id}`;
+};
+---
+
+{(prev || next) && (
+  <nav class="pt-8 mt-10 border-t border-(--border-subtle)" aria-label="Docs pagination">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      {prev ? (
+        <div class="text-left">
+          <a 
+            href={getHref(prev)} 
+            class="group flex flex-col gap-1.5 p-4 border border-(--border) rounded-lg hover:bg-(--bg-muted) active:bg-(--bg-muted) no-underline"
+          >
+            <span class="flex items-center justify-start gap-1.5 text-label-14 font-medium text-(--fg-muted)">
+              <span class="w-4 h-4 transition-transform group-hover:-translate-x-0.5 group-active:-translate-x-0.5">
+                <Icon name="arrow-left" className="w-full h-full" />
+              </span>
+              Previous
+            </span>
+            <span class="text-[14px] font-semibold text-(--fg-strong) truncate">
+              {prev.data.title}
+            </span>
+          </a>
+        </div>
+      ) : (
+        <div />
+      )}
+
+      {next ? (
+        <div class="text-right">
+          <a 
+            href={getHref(next)} 
+            class="group flex flex-col gap-1.5 p-4 border border-(--border) rounded-lg hover:bg-(--bg-muted) active:bg-(--bg-muted) no-underline"
+          >
+            <span class="flex items-center justify-end gap-1.5 text-label-14 font-medium text-(--fg-muted)">
+              Next
+              <span class="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-active:translate-x-0.5">
+                <Icon name="arrow-right" className="w-full h-full" />
+              </span>
+            </span>
+            <span class="text-[14px] font-semibold text-(--fg-strong) truncate">
+              {next.data.title}
+            </span>
+          </a>
+        </div>
+      ) : (
+        <div />
+      )}
+
+    </div>
+  </nav>
+)}

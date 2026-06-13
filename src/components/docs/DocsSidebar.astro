@@ -1,0 +1,73 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  sidebarItems: CollectionEntry<"docs">[];
+  primaryRootId: string;
+  cleanSlug: string | undefined;
+}
+
+const { sidebarItems, primaryRootId, cleanSlug } = Astro.props;
+
+// Grouping dengan pengurutan dasar berdasarkan order frontmatter
+const groupedItems = sidebarItems.reduce((acc, item) => {
+  const slugParts = (item.data.slug || item.id).split('/');
+  const category = slugParts.length > 1 ? slugParts[0] : 'General';
+  
+  if (!acc[category]) acc[category] = [];
+  acc[category].push(item);
+  acc[category].sort((a, b) => (a.data.order ?? 999) - (b.data.order ?? 999));
+  
+  return acc;
+}, {} as Record<string, CollectionEntry<"docs">[]>);
+---
+
+<div id="docs-sidebar-desktop">
+  <nav class="w-full">
+    {Object.entries(groupedItems).map(([category, items]) => (
+      <div class="space-y-1">
+        <p class="mb-2 text-[13px] font-medium uppercase font-mono text-(--fg-muted)">
+          {category.replace(/-/g, ' ')}
+        </p>
+        
+        <ul class="flex flex-col relative gap-0.5">
+          {items.map(item => {
+            const itemSlug = item.data.slug || item.id;
+            const isItemRoot = itemSlug === primaryRootId;
+            const targetHref = isItemRoot ? '/docs' : `/docs/${itemSlug}`;
+            const isActive = isItemRoot ? !cleanSlug : cleanSlug === itemSlug;
+
+            return (
+              <li>
+                <a
+                  href={targetHref}
+                  class:list={[
+                    "relative flex items-center gap-2 px-3 py-1.5 text-[13px] font-medium transition-colors duration-200 rounded-md",
+                    isActive
+                      ? "text-(--fg-strong) bg-(--bg-muted)"
+                      : "text-(--fg-muted) hover:text-(--fg-strong) hover:bg-(--bg-subtle)"
+                  ]}
+                  data-active-sidebar={isActive ? "true" : "false"}
+                >
+                  {item.data.title}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    ))}
+  </nav>
+</div>
+
+<script>
+  const scrollSidebarToActiveItem = () => {
+    const sidebar = document.getElementById("docs-sidebar-desktop");
+    if (!sidebar || sidebar.offsetWidth === 0) return;
+    const activeLink = sidebar.querySelector('[data-active-sidebar="true"]');
+    if (activeLink) {
+      activeLink.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+    }
+  };
+  document.addEventListener("astro:page-load", scrollSidebarToActiveItem);
+</script>

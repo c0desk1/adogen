@@ -1,0 +1,42 @@
+---
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  label?: string;
+  class?: string;
+}
+
+const { label = "Scroll to top", class: className = "" } = Astro.props;
+---
+
+<button
+  type="button"
+  id="scroll-to-top-btn"
+  aria-label={label}
+  class:list={[
+    "inline-flex items-center gap-2 text-[13px] font-medium text-(--fg-muted) hover:text-(--fg-strong) transition-colors no-underline cursor-pointer focus:outline-none w-full px-1.5 py-1",
+    className,
+  ]}
+  
+>
+  <span class="inline-flex shrink-o items-center w-4 h-4">
+    <Icon name='arrow-move-up' className='w-full h-full' />
+  </span>
+  <span>{label}</span>
+</button>
+
+<script>
+  const initBackToTop = () => {
+    const button = document.getElementById('scroll-to-top-btn');
+    if (!button) return;
+    
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  };
+  
+  initBackToTop();
+  document.addEventListener('astro:page-load', initBackToTop);
+  document.addEventListener('astro:after-swap', initBackToTop);
+</script>

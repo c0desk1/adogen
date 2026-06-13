@@ -1,0 +1,123 @@
+---
+// src/components/ui/Button.astro
+import type { HTMLAttributes } from 'astro/types';
+import { cn } from "@/lib/cn";
+import Spinner from './Spinner.astro';
+
+type ButtonVariant =
+  | 'accent'
+  | 'primary'
+  | 'secondary'
+  | 'outline'
+  | 'ghost'
+  | 'icon'
+  | 'icon-outline'
+  | 'icon-ghost'
+  | 'icon-left'
+  | 'icon-right';
+
+type ButtonSize = 'sm' | 'md' | 'lg';
+
+interface Props extends HTMLAttributes<'button'> {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  loading?: boolean;
+  href?: string;
+}
+
+const {
+  variant = 'primary',
+  size = 'md',
+  loading = false,
+  href,
+  class: className,
+  type = 'button',
+  disabled,
+  ...rest
+} = Astro.props;
+
+const isDisabled = disabled === true;
+const isIconOnlyVariant =
+  variant === 'icon' ||
+  variant === 'icon-outline' ||
+  variant === 'icon-ghost';
+
+const baseClasses = `
+  inline-flex items-center justify-center
+  font-medium no-wrap
+  duration-(--duration)
+  ease-(--ease-out)
+  focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--accent-ring)
+  disabled:opacity-40 disabled:cursor-not-allowed
+`.replace(/\s+/g, ' ').trim();
+
+const variantClasses: Record<ButtonVariant, string> = {
+  accent: "bg-(--accent) text-(--accent-fg) border border-transparent hover:opacity-90 active:opacity-90 active:scale-[0.98]",
+  primary: "bg-(--fg-strong) text-(--fg-inverted)! hover:opacity-90 active:opacity-90 active:scale-[0.98]",
+  secondary: "bg-(--bg-subtle) text-(--fg) border border-(--border) hover:bg-(--bg-muted) active:bg-(--bg-muted) active:scale-[0.98]",
+  outline: "border border-(--border-strong) text-(--fg) hover:bg-(--bg-subtle) active:bg-(--bg-subtle) active:scale-[0.98]",
+  ghost: "text-(--fg-muted) hover:bg-(--bg-subtle) active:bg-(--bg-subtle) hover:text-(--fg) active:scale-[0.98]",
+
+  icon: "border border-(--border) text-(--fg-muted) hover:bg-(--bg-subtle) active:bg-(--bg-subtle) hover:text-(--fg) active:text-(--fg) active:scale-[0.98]",
+  'icon-outline': "border border-(--border) text-(--fg-muted) hover:bg-(--bg-subtle) active:bg-(--bg-subtle) hover:text-(--fg) active:text-(--fg) active:scale-[0.98]",
+  'icon-ghost': "text-(--fg-muted) hover:bg-(--bg-subtle) active:bg-(--bg-subtle) hover:text-(--fg) active:text-(--fg) active:scale-[0.98]",
+
+  'icon-left': "gap-2",
+  'icon-right': "gap-2",
+};
+
+const sizeClasses: Record<ButtonSize, string> = {
+  sm: "h-8 px-3 text-xs gap-1.5 rounded-(--radius-md)",
+  md: "h-10 px-4 text-sm gap-2 rounded-(--radius-full)",
+  lg: "h-12 px-6 text-base gap-2.5 rounded-(--radius-full)",
+};
+
+const iconSizeClasses: Record<ButtonSize, string> = {
+  sm: "w-8 h-8 p-0 rounded-(--radius-full)",
+  md: "w-10 h-10 p-0 rounded-(--radius-full)",
+  lg: "w-12 h-12 p-0 rounded-(--radius-full)",
+};
+---
+
+{
+  href ? (
+    <a
+      href={href}
+      class={cn(
+        baseClasses,
+        variantClasses[variant],
+        isIconOnlyVariant ? iconSizeClasses[size] : sizeClasses[size],
+        loading || isDisabled ? "pointer-events-none opacity-40 cursor-not-allowed" : "",
+        className
+      )}
+      aria-disabled={loading || isDisabled ? "true" : undefined}
+      {...rest as HTMLAttributes<'a'>}
+    >
+      {loading && (
+        <Spinner size='sm' class="inline-block" />
+      )}
+      <slot name="icon-left" />
+      <slot />
+      <slot name="icon-right" />
+    </a>
+  ) : (
+    <button
+      type={type as 'button' | 'submit' | 'reset'}
+      disabled={isDisabled || loading}
+      class={cn(
+        baseClasses,
+        variantClasses[variant],
+        isIconOnlyVariant ? iconSizeClasses[size] : sizeClasses[size],
+        className
+      )}
+      {...rest as HTMLAttributes<'button'>}
+    >
+      {loading && (
+        <Spinner size='sm' class="inline-block" />
+      )}
+      <slot name="icon-left" />
+      <slot />
+      <slot name="icon-right" />
+    </button>
+  )
+}

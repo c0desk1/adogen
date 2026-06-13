@@ -1,0 +1,167 @@
+---
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  headings: { depth: number; text: string; slug: string }[];
+}
+
+const { headings } = Astro.props;
+const filteredToc = headings.filter(h => h.depth >= 2 && h.depth <= 3);
+
+const tocLabel = "Dihalaman ini";
+---
+
+<div class="lg:hidden sticky top-(--header-height) z-40 flex items-center justify-between w-full h-12 bg-(--bg) border-b border-(--border-subtle) px-4">
+  {filteredToc.length > 0 && (
+    <details id="m-toc-details" class="group/toc relative">
+      <summary class="flex items-center gap-2 cursor-pointer list-none select-none [&::-webkit-details-marker]:hidden text-[13px] font-medium text-(--fg-muted) hover:text-(--fg-strong) py-1.5 px-3 border border-(--border) rounded-md hover:bg-(--bg-muted)/30 active:bg-(--bg-muted)/30 focus:outline-none focus:ring-2 focus:ring-(--accent-ring) focus:border-(--border-strong)">
+        <span role="progressbar" aria-label="Reading progress" class="inline-flex shrink-0 items-center justify-center">
+          <svg viewBox="0 0 24 24" class="w-4 h-4 shrink-0" fill="none">
+            <circle cx="12" cy="12" r="11" stroke="currentColor" stroke-width="2" opacity="0.15" />
+            <circle id="m-toc-progress-ring" cx="12" cy="12" r="11" stroke="currentColor" stroke-width="2" stroke-dasharray="69.115" stroke-dashoffset="69.115" stroke-linecap="round" transform="rotate(-90 12 12)" class="transition-all duration-150 text-(--accent)" />
+          </svg>
+        </span>
+        <span id="m-toc-active-text" class="truncate max-w-32 text-left block font-medium">
+          {tocLabel}
+        </span>
+        <span class="w-4 h-4 transition-transform duration-300 group-open/toc:rotate-90 text-(--fg-muted)/70">
+          <Icon name="chevron-right" className='w-full h-full' />
+        </span>
+      </summary>
+      <nav class="absolute top-full left-0 mt-1 w-[calc(100vw-2rem)] max-w-sm bg-(--surface) rounded-md border border-(--border) max-h-[50vh] overflow-y-auto px-4 py-3.5 shadow-xl origin-top-right animate-in fade-in zoom-in-95 duration-200 z-50">
+        <div class="flex items-center gap-1.5 text-(--fg-muted) mb-2.5">
+          <span class="w-4 h-4">
+            <Icon name="toc" className='w-full h-full' />
+          </span>
+          <p class="text-[13px] font-medium"> {tocLabel}</p>
+        </div>
+        <div class="pb-1">
+          <ul id="m-toc-list" class="flex flex-col relative z-10" role="list">
+            {filteredToc.map((h) => {
+              const isSub = h.depth === 3;
+              return (
+                <li class="relative">
+                  <a 
+                    href={`#${h.slug}`}
+                    aria-label={h.text}
+                    class:list={[
+                      "toc-mobile-link block rounded-md py-2 px-3 text-[13px] transition-colors duration-200 no-underline truncate",
+                      isSub 
+                        ? "pl-6 text-(--fg-muted) font-normal hover:text-(--fg-strong)"
+                        : "pl-3 text-(--fg-muted) font-medium hover:text-(--fg-strong)"
+                    ]}
+                    data-toc-mobile-slug={h.slug}
+                    data-is-sub={isSub.toString()}
+                  >
+                    {h.text}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </nav>
+    </details>
+  )}
+</div>
+
+<script>
+  const initMobileToc = () => {
+    const tocLinks = document.querySelectorAll("[data-toc-mobile-slug]") as NodeListOf<HTMLElement>;
+    if (!tocLinks.length) return;
+
+    const tocLabel = "Dihalaman ini";
+    const tocDetails = document.getElementById("m-toc-details") as HTMLElement | null;
+    const activeText = document.getElementById("m-toc-active-text") as HTMLElement | null;
+    const progressRing = document.getElementById("m-toc-progress-ring") as HTMLElement | null;
+    if (!tocDetails || !activeText || !progressRing) return;
+
+    const linksArray = Array.from(tocLinks);
+    const targets = linksArray
+      .map(link => document.getElementById(link.dataset.tocMobileSlug!))
+      .filter((el): el is HTMLElement => el !== null);
+
+    let active = "";
+    let isClickScrolling = false;
+    const circumference = 69.115;
+
+    const updateRingProgress = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = docHeight <= 0 ? 0 : Math.min(scrollTop / docHeight, 1);
+      progressRing.style.strokeDashoffset = String(circumference * (1 - progress));
+    };
+
+    const updateActiveLinks = () => {
+      linksArray.forEach(link => {
+        const isActive = link.dataset.tocMobileSlug === active;
+        link.classList.toggle("text-(--fg-strong)", isActive);
+        link.classList.toggle("bg-(--bg-subtle)", isActive);
+        link.classList.toggle("text-(--fg-muted)", !isActive);
+      });
+    };
+
+    updateRingProgress();
+    window.addEventListener("scroll", updateRingProgress, { passive: true });
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (isClickScrolling) return;
+
+        const visibleEntries = entries.filter(e => e.isIntersecting);
+        
+        if (visibleEntries.length) {
+          const topMostEntry = visibleEntries.reduce((a, b) => 
+            a.boundingClientRect.top <= b.boundingClientRect.top ? a : b
+          );
+          active = (topMostEntry.target as HTMLElement).id;
+        } else if (window.scrollY < 100) {
+          active = "";
+        }
+
+        activeText.textContent = active 
+          ? (linksArray.find(l => l.dataset.tocMobileSlug === active)?.textContent?.trim() || tocLabel) 
+          : tocLabel;
+        updateActiveLinks();
+      },
+      { rootMargin: "-128px 0px -65% 0px", threshold: 0 }
+    );
+
+    targets.forEach(t => observer.observe(t));
+
+    const handleScrollTop = () => {
+      if (window.scrollY < 100 && !isClickScrolling) {
+        active = "";
+        activeText.textContent = tocLabel;
+        updateActiveLinks();
+      }
+    };
+    window.addEventListener("scroll", handleScrollTop, { passive: true });
+
+    const closeToc = () => tocDetails.removeAttribute("open");
+    linksArray.forEach(link => {
+      link.addEventListener("click", () => {
+        isClickScrolling = true;
+        active = link.dataset.tocMobileSlug || "";
+        activeText.textContent = link.textContent?.trim() || tocLabel;
+        updateActiveLinks();
+        closeToc();
+        setTimeout(() => { isClickScrolling = false; }, 500);
+      });
+    });
+
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (tocDetails.hasAttribute("open") && !tocDetails.contains(event.target as Node)) closeToc();
+    };
+    document.addEventListener("click", handleOutsideClick);
+
+    const cleanup = () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", updateRingProgress);
+      window.removeEventListener("scroll", handleScrollTop);
+      document.removeEventListener("click", handleOutsideClick);
+    };
+    document.addEventListener("astro:before-swap", cleanup, { once: true });
+  };
+  initMobileToc();
+</script>

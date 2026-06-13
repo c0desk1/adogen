@@ -1,0 +1,287 @@
+---
+// src/components/adogen/upscale/UpscaleDropzone.astro
+import Icon from "@/components/ui/Icon.astro";
+import UpscaleBatchList from '@/components/adogen/upscale/UpscaleList.astro';
+---
+
+<style>
+  #dz-root {
+    isolation: isolate;
+    position: relative;
+    z-index: 0;
+    width: 100%;
+  }
+
+  #upscale-dropzone {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.875rem;
+    width: 100%;
+    min-height: 192px;
+    padding: 2rem;
+    border: 2px dashed var(--border);
+    border-radius: var(--radius-md);
+    background: var(--bg-subtle);
+    cursor: pointer;
+    text-align: center;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+
+  #upscale-dropzone::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 28px 28px;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+  }
+  #upscale-dropzone:hover::before,
+  #upscale-dropzone[data-active="true"]::before {
+    opacity: 1;
+  }
+
+  @keyframes dz-scan {
+    0%   { top: 4px;          opacity: 0; }
+    5%   { opacity: 1; }
+    95%  { opacity: 1; }
+    100% { top: calc(100% - 4px); opacity: 0; }
+  }
+  #upscale-dropzone::after {
+    content: '';
+    position: absolute;
+    inset-x: 12px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    pointer-events: none;
+    opacity: 0;
+    border-radius: 1px;
+  }
+  #upscale-dropzone[data-active="true"]::after {
+    animation: dz-scan 1.5s ease-in-out infinite;
+  }
+
+  #upscale-dropzone:hover {
+    border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+    background: color-mix(in srgb, var(--accent) 3%, var(--bg-subtle));
+    outline: none;
+  }
+  #upscale-dropzone:focus-visible {
+    outline: 2px solid var(--accent-ring);
+    outline-offset: 2px;
+  }
+  #upscale-dropzone[data-active="true"] {
+    border-color: var(--accent);
+    border-style: solid;
+    background: color-mix(in srgb, var(--accent) 6%, var(--bg-subtle));
+  }
+  #upscale-dropzone[data-active="true"] #dz-icon-wrap {
+    border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 10%, var(--surface));
+  }
+
+  #dz-icon-wrap {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--fg-muted);
+    transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    flex-shrink: 0;
+    z-index: 0;
+  }
+  
+  @keyframes dz-ring-pulse {
+    0%, 100% { transform: scale(1);    opacity: 0.35; }
+    50%       { transform: scale(1.22); opacity: 0.08; }
+  }
+
+  #dz-icon-wrap::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    animation: dz-ring-pulse 3s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  #dz-badge {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 13px;
+    font-weight: 500;
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+
+  #dz-badge.visible {
+    display: inline-flex;
+  }
+
+  #dz-kbd {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    font-size: 11px;
+    font-family: var(--font-mono, monospace);
+    color: var(--fg-dim);
+  }
+
+  @keyframes dz-badge-pop {
+    0%   { transform: scale(0.7); opacity: 0; }
+    65%  { transform: scale(1.08); }
+    100% { transform: scale(1);   opacity: 1; }
+  }
+  #dz-badge.pop {
+    animation: dz-badge-pop 0.2s ease forwards;
+  }
+</style>
+
+<div id="dz-root" class="p-6 flex flex-col gap-4">
+  <input
+    id="upscale-file-input"
+    type="file"
+    accept="image/png,image/jpeg,image/webp"
+    multiple
+    class="hidden"
+    aria-label="Upload image files"
+  />
+
+  <div
+    id="upscale-dropzone"
+    role="button"
+    tabindex="0"
+    aria-label="Upload or drag and drop images"
+    data-active="false"
+  >
+
+    <div id="dz-badge" aria-live="polite">
+      <Icon name="image" className="w-4 h-4" />
+      <span id="dz-badge-num">0</span> added
+    </div>
+
+    <div id="dz-icon-wrap" aria-hidden="true">
+      <Icon name="upload" className="w-5 h-5" />
+    </div>
+
+    <div class="z-10">
+      <p class="text-[16px] font-medium text-(--fg-strong)" id="dz-label">
+        Drop images or <span class="text-(--accent) underline underline-offset-2 decoration-dotted">browse</span>
+      </p>
+      <p class="text-[14px] text-(--fg-dim) mt-1">
+        PNG · JPEG · WebP &nbsp;·&nbsp; max 10 MB
+      </p>
+    </div>
+
+    <span class="text-[13px] z-10" id="dz-kbd" aria-label="Or press Command V to paste">
+      <Icon name="command" className="w-4 h-4" />
+      V to paste
+    </span>
+  </div>
+
+  <UpscaleBatchList />
+</div>
+
+<script>
+  const dropzone  = document.getElementById('upscale-dropzone') as HTMLElement;
+  const fileInput = document.getElementById('upscale-file-input') as HTMLInputElement;
+  const badge     = document.getElementById('dz-badge') as HTMLElement;
+  const badgeNum  = document.getElementById('dz-badge-num') as HTMLElement;
+  const label     = document.getElementById('dz-label') as HTMLElement;
+
+  let totalAdded  = 0;
+  let dragCounter = 0;
+  const MAX_MB    = 10;
+
+  function setDrag(active: boolean) {
+    dropzone.dataset.active = String(active);
+    label.innerHTML = active
+      ? '<span style="font-weight:600;color:var(--accent)">Release to upload</span>'
+      : 'Drop images or <span class="text-(--accent) underline underline-offset-2 decoration-dotted">browse</span>';
+  }
+
+  function showBadge() {
+    badgeNum.textContent = String(totalAdded);
+    badge.classList.remove('pop');
+    badge.classList.add('visible');
+    void badge.offsetWidth;
+    badge.classList.add('pop');
+  }
+
+  function handleFiles(files: FileList | File[]) {
+    const valid = Array.from(files).filter(
+      f => f.type.startsWith('image/') && f.size <= MAX_MB * 1024 * 1024
+    );
+    if (!valid.length) return;
+    valid.forEach(file =>
+      document.dispatchEvent(new CustomEvent('upscale:file-raw', { detail: { file } }))
+    );
+    totalAdded += valid.length;
+    showBadge();
+  }
+
+  dropzone.addEventListener('click', () => fileInput.click());
+  dropzone.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
+  });
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files?.length) handleFiles(fileInput.files);
+    fileInput.value = '';
+  });
+
+  dropzone.addEventListener('dragenter', e => {
+    e.preventDefault();
+    if (++dragCounter === 1) setDrag(true);
+  });
+  dropzone.addEventListener('dragleave', () => {
+    if (--dragCounter <= 0) { dragCounter = 0; setDrag(false); }
+  });
+  dropzone.addEventListener('dragover', e => e.preventDefault());
+  dropzone.addEventListener('drop', e => {
+    e.preventDefault();
+    dragCounter = 0;
+    setDrag(false);
+    if (e.dataTransfer?.files.length) handleFiles(e.dataTransfer.files);
+  });
+
+  document.addEventListener('paste', e => {
+    const files: File[] = [];
+    for (const item of Array.from(e.clipboardData?.items ?? [])) {
+      if (item.type.startsWith('image/')) {
+        const f = item.getAsFile();
+        if (f) files.push(f);
+      }
+    }
+    if (files.length) handleFiles(files);
+  });
+
+  document.addEventListener('upscale:queue-cleared', () => {
+    totalAdded = 0;
+    badge.classList.remove('visible', 'pop');
+  });
+</script>

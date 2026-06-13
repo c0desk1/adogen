@@ -1,0 +1,20 @@
+---
+// src/components/mdx/Details.astro
+import Icon from '@/components/ui/icons/Icon.astro';
+
+interface Props {
+  summary?: string;
+}
+
+const { summary = 'Details' } = Astro.props;
+---
+
+<details class="details">
+  <summary class="details-summary">
+    <Icon name="chevron-right" className="details-icon" />
+    {summary}
+  </summary>
+  <div class="details-content">
+    <slot />
+  </div>
+</details>

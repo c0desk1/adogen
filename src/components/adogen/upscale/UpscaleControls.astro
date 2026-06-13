@@ -1,0 +1,290 @@
+---
+// src/components/upscale/UpscaleControls.astro (versi unified seperti metadata)
+import Button from '@/components/ui/Button.astro';
+import Icon from '@/components/ui/Icon.astro';
+import Input from '@/components/ui/Input.astro';
+import Select from '@/components/ui/Select.astro';
+import Slider from '@/components/ui/Slider.astro';
+import Badge from '@/components/ui/Badge.astro';
+import { ENGINE_OPTIONS, DEFAULT_MODEL } from '@/utils/engine';
+import Card from '@/components/ui/Card.astro';
+
+const scaleOptions = [
+  { value: '2', label: '2× — Double' },
+  { value: '3', label: '3× — Triple' },
+  { value: '4', label: '4× — Quad' },
+];
+
+const formatOptions = [
+  { value: 'png',  label: 'PNG (lossless)' },
+  { value: 'jpeg', label: 'JPEG (smaller)' },
+  { value: 'webp', label: 'WebP (modern)'  },
+];
+
+const methodOptions = [
+  { value: 'ai',       label: 'AI Super-Resolution' },
+  { value: 'lanczos',  label: 'Lanczos (sharp)'     },
+  { value: 'bicubic',  label: 'Bicubic (smooth)'    },
+];
+
+const providerOptions = ENGINE_OPTIONS.map((e) => ({ value: e.id, label: e.label }));
+
+const enginesConfigPayload = ENGINE_OPTIONS.map((e) => {
+  const fallbackDefault = e.models?.[0]?.id ?? '';
+  const defModel = DEFAULT_MODEL && e.id in DEFAULT_MODEL 
+    ? (DEFAULT_MODEL as Record<string, string>)[e.id] 
+    : fallbackDefault;
+  return {
+    id: e.id,
+    label: e.label,
+    isCustom: !!e.isCustom,
+    isFree: !!e.isFree,
+    models: e.models ? e.models.map((m) => ({ value: m.id, label: m.label })) : [],
+    defaultModel: defModel || fallbackDefault,
+  };
+});
+---
+
+<div class="flex flex-col min-w-0" data-upscale-config data-engines={JSON.stringify(enginesConfigPayload)}>
+  <div class="inline-flex w-full min-w-0 items-center justify-between px-4 py-3 border-b border-(--border-subtle) shrink-0">
+    <h3 class="text-heading-14 font-mono uppercase font-semibold text-(--fg-strong)">Configuration</h3>
+    <Button id="upscale-save-btn" variant="primary" size="sm" class="text-button-14">
+      Save All
+    </Button>
+  </div>
+  <div class="flex-1 min-w-0 overflow-y-auto py-4 space-y-6">
+    <div class="px-4">
+      <h4 class="text-label-13 font-mono uppercase font-semibold text-(--fg-muted) tracking-wider mb-3">Parameters</h4>
+      <div class="space-y-4">
+        <Select id="upscale-method" label="Method" options={methodOptions} />
+        <Select id="upscale-scale" label="Scale Factor" options={scaleOptions} />
+        <Select id="upscale-format" label="Output Format" options={formatOptions} />
+        <div id="quality-row" class="hidden">
+          <Slider
+            id="upscale-quality"
+            label="JPEG Quality"
+            min={10}
+            max={100}
+            step={5}
+            value={85}
+            leftLabel="10"
+            rightLabel="100"
+          />
+        </div>
+      </div>
+    </div>
+    <div id="ai-engine-section" class="hidden">
+      <hr class="border-(--border-subtle)" />
+
+      <div class="pt-4 px-4 space-y-4">
+        <h4 class="text-label-13 font-mono uppercase font-semibold text-(--fg-muted) tracking-wider mb-3">Engine</h4>
+        <Select id="upscale-engine-select" label="Provider" options={providerOptions} />
+        <Select data-standard-model-container id="upscale-model-select" label="Model" options={[]} />
+        <div data-custom-model-container class="hidden space-y-4">
+          <Input id="upscale-custom-endpoint" label="Custom Endpoint URL" placeholder="https://your-api.com/v1/chat/completions" />
+          <Input id="upscale-custom-model" label="Model Name" placeholder="e.g., meta-llama/llama-4-scout" />
+        </div>
+        <div data-free-badge-container class="hidden items-center gap-2 text-[13px] text-(--fg-muted)">
+          <Badge variant="success">Free</Badge>
+          <span>No API key required. Powered by Cloudflare Workers AI.</span>
+        </div>
+        <Card variant='secondary' padding="sm" radius="sm" class="border-(--border-subtle)">
+          <div class="flex items-start gap-1.5 text-(--fg-muted)/80">
+            <Icon name="info" className="w-4 h-4 hrink-0" />
+            <span class="text-caption-13">Keys are stored locally in your browser.</span>
+          </div>
+        </Card>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const initUpscaleConfig = () => {
+    const container = document.querySelector('[data-upscale-config]');
+
+    if (!container || container.hasAttribute('data-initialized')) return;
+    container.setAttribute('data-initialized', 'true');
+
+    const enginesConfig = JSON.parse((container as HTMLElement).dataset.engines || '[]');
+
+    const methodSelect = document.getElementById('upscale-method') as HTMLSelectElement;
+    const scaleSelect = document.getElementById('upscale-scale') as HTMLSelectElement;
+    const formatSelect = document.getElementById('upscale-format') as HTMLSelectElement;
+    const qualitySlider = document.getElementById('upscale-quality') as HTMLInputElement;
+    const qualityRow = document.getElementById('quality-row') as HTMLElement;
+
+    const engineSelect = document.getElementById('upscale-engine-select') as HTMLSelectElement;
+    const modelSelect = document.getElementById('upscale-model-select') as HTMLSelectElement;
+    const customEndpoint = document.getElementById('upscale-custom-endpoint') as HTMLInputElement;
+    const customModel = document.getElementById('upscale-custom-model') as HTMLInputElement;
+    const standardModelContainer = document.querySelector('[data-standard-model-container]') as HTMLElement;
+    const customModelContainer = document.querySelector('[data-custom-model-container]') as HTMLElement;
+    const freeBadgeContainer = document.querySelector('[data-free-badge-container]') as HTMLElement;
+    const apiKeyContainer = document.querySelector('[data-api-key-container]') as HTMLElement;
+    const aiEngineSection = document.getElementById('ai-engine-section') as HTMLElement;
+
+    const saveBtn = document.getElementById('upscale-save-btn') as HTMLButtonElement;
+
+    const LS_KEY = 'adogen-upscale-config';
+
+    const syncSliderValue = (input: HTMLInputElement, value: number) => {
+      input.value = String(value);
+      const min = parseFloat(input.min) || 0;
+      const max = parseFloat(input.max) || 100;
+      const percentage = ((value - min) / (max - min)) * 100;
+      input.style.setProperty('--value-percent', `${percentage}%`);
+      const badge = input.closest('[data-slider-root]')?.querySelector('[data-slider-badge]');
+      if (badge) badge.textContent = String(value);
+    };
+
+    const toggleAiSection = () => {
+      const isAI = methodSelect.value === 'ai';
+      aiEngineSection.classList.toggle('hidden', !isAI);
+    };
+
+    const toggleQualityRow = () => {
+      const show = formatSelect.value === 'jpeg';
+      qualityRow.classList.toggle('hidden', !show);
+    };
+
+    const updateEngineUI = (engineId: string, targetModelId?: string) => {
+      const targetConfig = enginesConfig.find((c: any) => c.id === engineId);
+      if (!targetConfig) return;
+
+      const providerLabel = engineSelect.closest('[data-select-root]')?.querySelector('[data-select-label]');
+      if (providerLabel) providerLabel.textContent = targetConfig.label;
+
+      if (targetConfig.isCustom) {
+        customModelContainer.classList.remove('hidden');
+        standardModelContainer.classList.add('hidden');
+      } else {
+        standardModelContainer.classList.remove('hidden');
+        customModelContainer.classList.add('hidden');
+        modelSelect.innerHTML = '';
+        targetConfig.models.forEach((m: any) => {
+          const opt = document.createElement('option');
+          opt.value = m.value;
+          opt.textContent = m.label;
+          if (targetModelId && m.value === targetModelId) opt.selected = true;
+          else if (!targetModelId && m.value === targetConfig.defaultModel) opt.selected = true;
+          modelSelect.appendChild(opt);
+        });
+        modelSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        const modelLabel = modelSelect.closest('[data-select-root]')?.querySelector('[data-select-label]');
+        if (modelLabel) {
+          const activeOpt = targetConfig.models.find((m: any) => m.value === modelSelect.value);
+          if (activeOpt) modelLabel.textContent = activeOpt.label;
+        }
+      }
+
+      if (targetConfig.isFree) {
+        freeBadgeContainer.classList.remove('hidden');
+        apiKeyContainer.classList.add('hidden');
+      } else {
+        apiKeyContainer.classList.remove('hidden');
+        freeBadgeContainer.classList.add('hidden');
+      }
+
+      document.dispatchEvent(new CustomEvent('engine-changed', { detail: { engineId } }));
+    };
+
+    const loadConfig = () => {
+      const savedRaw = localStorage.getItem(LS_KEY);
+      let engineId = enginesConfig[0]?.id || 'groq';
+      let modelId = '';
+      let customEndpointVal = '';
+      let customModelVal = '';
+      let method = 'ai';
+      let scale = '2';
+      let format = 'png';
+      let quality = 85;
+
+      if (savedRaw) {
+        try {
+          const parsed = JSON.parse(savedRaw);
+          engineId = parsed.engine || engineId;
+          modelId = parsed.model || '';
+          customEndpointVal = parsed.customEndpoint || '';
+          customModelVal = parsed.customModel || '';
+          method = parsed.method || method;
+          scale = parsed.scale || scale;
+          format = parsed.format || format;
+          quality = parsed.quality ?? quality;
+        } catch (e) {}
+      }
+
+      methodSelect.value = method;
+      scaleSelect.value = scale;
+      formatSelect.value = format;
+      if (qualitySlider) syncSliderValue(qualitySlider, quality);
+      engineSelect.value = engineId;
+      if (customEndpoint) customEndpoint.value = customEndpointVal;
+      if (customModel) customModel.value = customModelVal;
+
+      updateEngineUI(engineId, modelId);
+      toggleAiSection();
+      toggleQualityRow();
+    };
+
+    const saveAll = () => {
+      const currentEngineId = engineSelect.value;
+      const targetConfig = enginesConfig.find((c: any) => c.id === currentEngineId);
+      const apiKeyInput = document.getElementById('api-key-input') as HTMLInputElement | null;
+      const apiKey = apiKeyInput?.value || '';
+
+      const allKeys = JSON.parse(localStorage.getItem('adogen-api-keys') || '{}');
+      allKeys[currentEngineId] = apiKey;
+      localStorage.setItem('adogen-api-keys', JSON.stringify(allKeys));
+
+      const engineToSave = {
+        engine: currentEngineId,
+        model: targetConfig?.isCustom ? '' : modelSelect.value,
+        customEndpoint: customEndpoint?.value || '',
+        customModel: customModel?.value || '',
+      };
+      localStorage.setItem('adogen-engine', JSON.stringify(engineToSave));
+
+      const upscaleConfig = {
+        method: methodSelect.value,
+        scale: scaleSelect.value,
+        format: formatSelect.value,
+        quality: qualitySlider ? parseInt(qualitySlider.value, 10) : 85,
+        engine: currentEngineId,
+        model: targetConfig?.isCustom ? '' : modelSelect.value,
+        apiKey: apiKey,
+        customEndpoint: customEndpoint?.value || '',
+        customModel: customModel?.value || '',
+      };
+      localStorage.setItem(LS_KEY, JSON.stringify(upscaleConfig));
+
+      saveBtn.classList.remove('bg-(--accent)', 'text-(--accent-fg)');
+      saveBtn.classList.add('bg-(--success)/10', 'text-(--success)', 'border', 'border-(--success)/20');
+      saveBtn.innerHTML = `
+        <span class="flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg> Saved
+        </span>`;
+
+      document.dispatchEvent(new CustomEvent('engine-config-updated', { detail: engineToSave }));
+      document.dispatchEvent(new CustomEvent('upscale-config-saved', { detail: upscaleConfig }));
+
+      setTimeout(() => {
+        saveBtn.classList.add('bg-(--accent)', 'text-(--accent-fg)');
+        saveBtn.classList.remove('bg-(--success)/10', 'text-(--success)', 'border', 'border-(--success)/20');
+        saveBtn.innerHTML = 'Save All';
+      }, 1800);
+    };
+
+    methodSelect.addEventListener('change', toggleAiSection);
+    formatSelect.addEventListener('change', toggleQualityRow);
+    engineSelect.addEventListener('change', () => updateEngineUI(engineSelect.value));
+    saveBtn.addEventListener('click', saveAll);
+
+    loadConfig();
+  };
+
+  initUpscaleConfig();
+  document.addEventListener('astro:page-load', initUpscaleConfig);
+</script>

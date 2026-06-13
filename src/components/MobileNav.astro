@@ -1,0 +1,100 @@
+---
+// src/components/MobileNav.astro
+import { 
+  NAV, 
+  ROUTES 
+} from '../consts';
+
+import Button from "./ui/Button.astro"
+import Icon from './ui/icons/Icon.astro';
+
+const links = [
+  { label: 'Home', href: ROUTES.home },
+  ...NAV.mobileNavBar.map((item) => ({
+    label: item.label,
+    href: item.href,
+  })),
+];
+---
+
+<Button
+  id="mobile-menu-open"
+  aria-label="Open menu"
+  variant="icon-outline"
+  size="sm"
+  class="inline-flex shrink-0 items-center p-1.5 cursor-pointer sm:hidden"
+>
+  <Icon name="menu" className="w-full h-full" />
+</Button>
+
+<div
+  id="mobile-menu-drawer"
+  class="fixed inset-0 z-50 bg-(--bg) flex flex-col opacity-0 pointer-events-none transition-all duration-300 invisible"
+>
+  <header class="flex items-center justify-between px-4 h-(--header-height) shrink-0 border-b border-(--border-subtle)">
+    <span class="text-sm font-semibold text-(--fg-strong)"></span>
+    <Button
+      type="button"
+      aria-label="Close menu"
+      id="mobile-menu-close"
+      variant="icon-outline"
+      size="sm"
+      class="inline-flex shrink-0 items-center p-1.5 cursor-pointer"
+    >
+      <Icon name="close" className="w-full h-full" />
+    </Button>
+  </header>
+  
+  <nav class="flex-1 overflow-y-auto py-6 px-4">
+    <div class="grid grid-cols-1 gap-2">
+      {links.map((link) => (
+        <a
+          aria-label={link.label}
+          href={link.href}
+          class="mobile-nav-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-(--fg) hover:bg-(--bg-muted) transition-colors"
+        >
+          {link.label}
+        </a>
+      ))}
+    </div>
+  </nav>
+</div>
+
+<script>
+  function initMobileNav() {
+    const openBtn = document.getElementById('mobile-menu-open');
+    const closeBtn = document.getElementById('mobile-menu-close');
+    const drawer = document.getElementById('mobile-menu-drawer');
+    const links = document.querySelectorAll('.mobile-nav-link');
+
+    if (!openBtn || !closeBtn || !drawer) return;
+
+    if (drawer.parentElement !== document.body) {
+      document.body.appendChild(drawer);
+    }
+
+    const openMenu = () => {
+      drawer.classList.remove('opacity-0', 'pointer-events-none', 'invisible');
+      drawer.classList.add('opacity-100', 'pointer-events-auto', 'visible');
+      document.body.style.overflow = 'hidden';
+    };
+
+    const closeMenu = () => {
+      drawer.classList.remove('opacity-100', 'pointer-events-auto', 'visible');
+      drawer.classList.add('opacity-0', 'pointer-events-none', 'invisible');
+      document.body.style.overflow = '';
+    };
+
+    openBtn.onclick = openMenu;
+    closeBtn.onclick = closeMenu;
+    links.forEach(link => {
+      (link as HTMLElement).onclick = closeMenu;
+    });
+
+    const mq = window.matchMedia('(min-width: 640px)');
+    mq.onchange = (e) => { if (e.matches) closeMenu(); };
+  }
+
+  document.addEventListener('astro:page-load', initMobileNav);
+  if (document.readyState !== 'loading') initMobileNav();
+</script>
