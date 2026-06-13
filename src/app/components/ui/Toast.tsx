@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import Icon from './Icon';
 import Spinner from './Spinner';
 
-export default function ToastContainer() {
+export default function Toast() {
   const currentToasts = useStore(toasts);
   if (currentToasts.length === 0) return null;
 
