@@ -1,0 +1,43 @@
+/* src/styles/prose/steps.css */
+
+.prose .steps-heading-content :first-child,
+.prose .steps-body-content :first-child {
+  margin-top: 0 !important;
+}
+
+.prose .steps-heading-content :last-child,
+.prose .steps-body-content :last-child {
+  margin-bottom: 0 !important;
+}
+
+.prose .steps-heading-content h2,
+.prose .steps-heading-content h3,
+.prose .steps-heading-content h4 {
+  @apply text-heading-16;
+  color: var(--prose-fg-strong);
+}
+
+.prose .steps-body-content ul,
+.prose .steps-body-content ol,
+.prose .steps-body-content p {
+  @apply text-body-16;
+  color: var(--prose-fg-muted);
+}
+
+.prose .steps-wrapper .full-width-figure {
+  width: auto;
+}
+
+@media (min-width: 768px) {
+  .prose .steps-heading-content h2,
+  .prose .steps-heading-content h3,
+  .prose .steps-heading-content h4 {
+    @apply text-heading-18;
+  }
+
+  .prose .steps-body-content ul,
+  .prose .steps-body-content ol,
+  .prose .steps-body-content p {
+    @apply text-body-16;
+  }
+}

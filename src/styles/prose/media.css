@@ -1,0 +1,108 @@
+/* src/styles/prose/components/media.css */
+
+.prose img,
+.prose video,
+.prose .video-wrapper {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--prose-radius-md);
+  border: 1px solid var(--prose-image-border);
+  background-color: var(--prose-image-bg);
+}
+
+.prose figure,
+.video-figure {
+  margin: 2rem 0;
+  width: 100%;
+}
+
+.video-wrapper {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+}
+
+.video-wrapper .video-element {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+  object-fit: cover;
+}
+
+.prose figcaption,
+.video-figure figcaption {
+  @apply text-caption-12;
+  text-align: center;
+  color: var(--prose-figure-caption);
+  margin-top: 0.75rem;
+  text-wrap: pretty;
+  padding: 0 1rem;
+}
+
+.lightbox-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s var(--prose-ease-out);
+}
+
+.lightbox-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.lightbox-zoom-container {
+  position: relative;
+  max-width: 90vw;
+  max-height: 85vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox-image {
+  max-width: 100%;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: var(--prose-radius-md);
+  cursor: zoom-out;
+}
+
+.lightbox-close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  color: #ffffff;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+  cursor: pointer;
+}
+
+.lightbox-close:hover {
+  opacity: 1;
+}
+
+@media (max-width: 767px) {
+  .prose figure,
+  .video-figure,
+  .prose video {
+    margin: 1.5rem 0;
+  }
+}
+
+@media (min-width: 768px) {
+  .prose figcaption,
+  .video-figure figcaption {
+    @apply text-caption-14;
+  }
+}

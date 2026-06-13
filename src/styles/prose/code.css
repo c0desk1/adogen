@@ -1,0 +1,126 @@
+/* src/styles/prose/code.css */
+
+.prose :not(pre) > code {
+  @apply text-code-14;
+  padding: 0.15em 0.4em;
+  font-weight: 500;
+  background-color: var(--prose-code-bg);
+  color: var(--prose-code-text);
+  border: 1px solid var(--prose-code-border);
+  border-radius: var(--prose-radius-sm);
+  white-space: break-spaces;
+}
+
+.prose h1 code,
+.prose h2 code,
+.prose h3 code,
+.prose h4 code,
+.prose h5 code,
+.prose h6 code,
+.prose summary code,
+.prose a code {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  color: inherit !important;
+  font-size: inherit !important;
+}
+
+.prose .astro-code {
+  @apply text-code-14;
+  display: block;
+  padding: 1.25rem 0;
+  margin: 0 !important;
+  color: var(--prose-code-text);
+  background-color: var(--prose-code-bg) !important;
+  line-height: 1.5;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+}
+
+.prose .astro-code::-webkit-scrollbar {
+  display: none;
+}
+
+.prose .astro-code code {
+  display: grid;
+  min-width: 100%;
+  background: none !important;
+  font-family: inherit;
+  line-height: inherit;
+}
+
+.prose .astro-code .line {
+  display: block;
+  padding: 0 1.5rem !important;
+  line-height: inherit;
+  white-space: pre;
+}
+
+.prose .astro-code .line > span {
+  white-space: pre;
+  word-break: normal;
+  word-wrap: normal;
+}
+
+.prose .astro-code .line .comment {
+  color: var(--prose-code-comment);
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.prose .astro-code .line.diff {
+  position: relative;
+}
+
+.prose .astro-code .line.diff.add {
+  background-color: var(--prose-code-diff-add-bg) !important;
+  box-shadow: inset 3px 0 0 0 var(--prose-code-diff-add-border) !important;
+}
+.prose .astro-code .line.diff.add::before {
+  content: "+";
+  position: absolute;
+  left: 0.35rem;
+  font-weight: 700;
+  color: var(--color-success);
+  opacity: 0.7;
+}
+
+.prose .astro-code .line.diff.remove {
+  background-color: var(--prose-code-diff-remove-bg) !important;
+  box-shadow: inset 3px 0 0 0 var(--prose-code-diff-remove-border) !important;
+  opacity: 0.7;
+}
+.prose .astro-code .line.diff.remove::before {
+  content: "−";
+  position: absolute;
+  left: 0.35rem;
+  font-weight: 700;
+  color: var(--color-error);
+  opacity: 0.7;
+}
+
+.prose .astro-code .line.highlighted {
+  background-color: var(--prose-code-line-highlighted-bg) !important;
+  box-shadow: inset 3px 0 0 0 var(--prose-code-line-highlighted-border) !important;
+}
+
+.dark .astro-code {
+  background-color: var(--prose-code-bg) !important;
+}
+.dark .astro-code span {
+  background: transparent !important;
+  color: var(--shiki-dark, inherit) !important;
+}
+
+@media (min-width: 768px) {
+  .prose :not(pre) > code {
+    @apply text-code-14;
+  }
+  
+  .prose .astro-code,
+  .prose .astro-code .line {
+    @apply text-code-14;
+  }
+}

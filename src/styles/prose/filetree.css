@@ -1,0 +1,128 @@
+/* src/styles/prose/components/file-tree.css */
+
+.prose .file-tree-container {
+  margin: 2rem 0;
+  background-color: var(--prose-code-bg);
+  border: 1px solid var(--prose-code-border);
+  border-radius: var(--prose-radius-md);
+  padding: 1.25rem;
+  overflow-x: auto;
+  font-family: var(--prose-font-mono);
+}
+
+.prose .file-tree,
+.prose .file-tree-list,
+.prose .file-tree-list ul,
+.prose .file-tree-list ol,
+.prose .file-tree-list li {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.prose .file-tree {
+  min-width: max-content;
+}
+
+.prose .file-tree-list li::marker,
+.prose .file-tree-list li::before,
+.prose .file-tree-list li::after {
+  content: none;
+  display: none;
+}
+
+.prose .file-tree-list li + li {
+  margin-top: 0.55rem;
+}
+
+.prose .file-tree-children {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.25s var(--prose-ease-out);
+  margin-left: 0.45rem;
+  padding-left: 0.85rem;
+  border-left: 1px solid color-mix(in srgb, var(--prose-border-strong) 30%, transparent);
+}
+
+.prose .file-tree-folder.open > .file-tree-children {
+  grid-template-rows: 1fr;
+}
+
+.prose .file-tree-children > ul,
+.prose .file-tree-children > ol {
+  overflow: hidden;
+}
+
+.prose .file-tree-label {
+  @apply text-code-14;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.15rem 0;
+  color: var(--prose-fg-muted);
+  transition: color var(--prose-duration) var(--prose-ease-out);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.prose .file-tree-folder > .file-tree-label {
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.prose .file-tree-folder.open > .file-tree-label {
+  color: var(--prose-fg-strong);
+}
+
+.prose .file-tree-label:hover {
+  color: var(--prose-fg-strong);
+}
+
+.prose .file-tree-label .icon {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  color: var(--prose-fg-subtle);
+  transition: color var(--prose-duration) var(--prose-ease-out);
+}
+
+.prose .file-tree-folder.open > .file-tree-label .icon {
+  color: var(--prose-accent);
+}
+
+.prose .file-tree-label.is-highlighted {
+  color: var(--prose-fg-strong);
+  background-color: var(--prose-bg-muted);
+  padding: 0.2rem 0.5rem 0.2rem 0.35rem;
+  margin-left: -0.35rem;
+  border-radius: var(--prose-radius-sm);
+  font-weight: 600;
+}
+
+.prose .file-tree-label.is-highlighted .icon {
+  color: var(--prose-fg-strong);
+}
+
+.prose .file-tree-label.is-removed {
+  color: var(--prose-fg-subtle);
+  opacity: 0.6;
+}
+
+.prose .file-tree-label.is-removed .icon {
+  opacity: 0.5;
+}
+
+.prose .file-tree-label.is-removed .file-name {
+  text-decoration: line-through;
+  text-decoration-color: var(--prose-border-strong);
+}
+
+@media (min-width: 768px) {
+  .prose .file-tree-container {
+    margin: 2.5rem 0;
+  }
+
+  .prose .file-tree-label {
+    @apply text-code-14;
+  }
+}

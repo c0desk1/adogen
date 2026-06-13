@@ -1,0 +1,78 @@
+/* src/styles/prose/blockquote.css */
+.prose blockquote {
+  margin: 2rem 0;
+  border-left: 2px solid var(--prose-quote-border);
+  padding-left: 1.25rem;
+  color: var(--prose-quote-text);
+}
+
+.prose blockquote p {
+  margin: 0;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+}
+
+.prose blockquote p + p {
+  margin-top: 12px;
+}
+
+.prose blockquote cite,
+.prose blockquote footer {
+  @apply text-body-14;
+  display: block;
+  margin-top: 1rem;
+  color: var(--prose-quote-cite);
+  font-style: normal;
+}
+
+.prose blockquote cite::before {
+  content: "— ";
+  color: var(--prose-border-strong);
+}
+
+.prose .quote {
+  display: flex;
+  flex-direction: column;
+  margin: 2rem 0;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--prose-quote-text);
+}
+
+.prose .quote::before {
+  content: "“";
+  display: block;
+  font-size: 3rem;
+  line-height: 1;
+  margin-bottom: -1.5rem;
+  margin-left: -0.125rem;
+  color: var(--prose-border-strong);
+  opacity: 0.4;
+}
+
+.prose .quote-body {
+  padding-left: 1rem;
+}
+
+@media (min-width: 768px) {
+  .prose .quote {
+    margin: 2.5rem 0;
+  }
+
+  .prose .quote::before {
+    font-size: 4rem;
+    margin-bottom: -2rem;
+  }
+
+  .prose .quote-body {
+    padding-left: 1.5rem;
+  }
+
+  .prose blockquote cite,
+  .prose blockquote footer {
+    @apply text-body-14;
+  }
+}

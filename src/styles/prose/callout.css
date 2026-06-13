@@ -1,0 +1,200 @@
+/* src/styles/prose/components/callout.css */
+
+.prose [data-callout="note"] {
+  --c-bg: var(--callout-note-bg);
+  --c-border: var(--callout-note-border);
+  --c-text: var(--callout-note-text);
+  --c-icon: var(--callout-note-icon);
+  --c-title: var(--callout-note-title);
+}
+
+.prose [data-callout="info"] {
+  --c-bg: var(--callout-info-bg);
+  --c-border: var(--callout-info-border);
+  --c-text: var(--callout-info-text);
+  --c-icon: var(--callout-info-icon);
+  --c-title: var(--callout-info-title);
+}
+
+.prose [data-callout="tip"] {
+  --c-bg: var(--callout-tip-bg);
+  --c-border: var(--callout-tip-border);
+  --c-text: var(--callout-tip-text);
+  --c-icon: var(--callout-tip-icon);
+  --c-title: var(--callout-tip-title);
+}
+
+.prose [data-callout="warning"] {
+  --c-bg: var(--callout-warning-bg);
+  --c-border: var(--callout-warning-border);
+  --c-text: var(--callout-warning-text);
+  --c-icon: var(--callout-warning-icon);
+  --c-title: var(--callout-warning-title);
+}
+
+.prose [data-callout="caution"] {
+  --c-bg: var(--callout-caution-bg);
+  --c-border: var(--callout-caution-border);
+  --c-text: var(--callout-caution-text);
+  --c-icon: var(--callout-caution-icon);
+  --c-title: var(--callout-caution-title);
+}
+
+.prose [data-callout="important"] {
+  --c-bg: var(--callout-important-bg);
+  --c-border: var(--callout-important-border);
+  --c-text: var(--callout-important-text);
+  --c-icon: var(--callout-important-icon);
+  --c-title: var(--callout-important-title);
+}
+
+.prose [data-callout="danger"] {
+  --c-bg: var(--callout-danger-bg);
+  --c-border: var(--callout-danger-border);
+  --c-text: var(--callout-danger-text);
+  --c-icon: var(--callout-danger-icon);
+  --c-title: var(--callout-danger-title);
+}
+
+.prose .callout {
+  display: flex;
+  margin: 1.5rem 0;
+  background-color: var(--c-bg);
+  border: 1px solid var(--c-border);
+  border-radius: var(--prose-radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  color: var(--c-text);
+}
+
+.prose .callout-aside {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background-color: rgb(from var(--c-icon) r g b / 0.04);
+  border-right: 1px solid var(--c-border);
+  gap: 0.5rem;
+  min-width: 2.25rem;
+  flex-shrink: 0;
+  padding: 0.625rem 0; 
+}
+
+.prose .callout-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--c-icon);
+}
+
+.prose .callout-icon svg {
+  width: 1.125rem;
+  height: 1.125rem;
+}
+
+.prose .callout-body {
+  flex: 1;
+  min-width: 0;
+  padding: 0.625rem 0.875rem; 
+}
+
+.prose .callout-content * {
+  @apply text-body-14;
+  color: var(--c-text);
+}
+
+.prose .callout-content > *:first-child { margin-top: 0 !important; }
+.prose .callout-content > *:last-child  { margin-bottom: 0 !important; }
+
+.prose .callout-content p,
+.prose .callout-content ul,
+.prose .callout-content ol,
+.prose .callout-content li {
+  margin-top: 0 !important;
+  color: inherit;
+}
+
+.prose .callout-content p,
+.prose .callout-content ul,
+.prose .callout-content ol { 
+  margin-bottom: 0.5rem; 
+}
+
+.prose .callout-content li { 
+  margin-bottom: 0.2rem; 
+}
+
+.prose .callout-content ul,
+.prose .callout-content ol { 
+  padding-left: 1.125rem; 
+}
+
+.prose .callout-content li::marker { 
+  color: var(--c-icon); 
+}
+
+.prose .callout-content strong { 
+  color: var(--c-title); 
+  font-weight: 600; 
+}
+
+.prose .callout-content em { 
+  color: var(--c-text); 
+}
+
+.prose .callout-content small { 
+  font-size: 0.7rem; 
+  line-height: 1.1rem; 
+  opacity: 0.75; 
+}
+
+.prose .callout :not(pre) > code {
+  @apply text-code-14;
+  background-color: rgb(from var(--c-border) r g b / 0.1);
+  border: 1px solid rgb(from var(--c-border) r g b / 0.2);
+  padding: 0.1rem 0.25rem;
+  border-radius: var(--prose-radius-sm);
+  white-space: nowrap;
+}
+
+.prose .callout-content a {
+  color: var(--c-title);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: rgb(from var(--c-border) r g b / 0.3);
+  transition: text-decoration-color var(--prose-duration) var(--prose-ease-out);
+}
+
+.prose .callout-content a:hover { 
+  text-decoration-color: var(--c-title); 
+}
+
+.prose .callout-content .external-icon { 
+  display: none !important; 
+}
+
+@media (min-width: 768px) {
+  .prose .callout { 
+    margin: 2rem 0; 
+  }
+  
+  .prose .callout-aside { 
+    min-width: 2.75rem; 
+    padding: 0.975rem 0; 
+  }
+  
+  .prose .callout-body  { 
+    padding: 0.875rem 1.125rem; 
+  }
+  
+  .prose .callout-content * {
+    @apply text-body-14;
+  }
+
+  .prose .callout :not(pre) > code {
+    @apply text-code-14;
+  }
+}

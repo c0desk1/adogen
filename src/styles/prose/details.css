@@ -1,0 +1,106 @@
+/* src/styles/prose/details.css */
+
+.prose .details {
+  margin: 1.5rem 0;
+  border: 1px solid var(--prose-details-border);
+  border-radius: var(--prose-radius-md);
+  background-color: var(--prose-details-bg);
+  overflow: hidden;
+  transition: 
+    box-shadow var(--prose-duration) var(--prose-ease-out),
+    border-color var(--prose-duration) var(--prose-ease-out);
+}
+
+.prose .details:hover {
+  border-color: var(--prose-border-strong);
+}
+
+.prose .details-summary {
+  @apply text-heading-16;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+  padding: 10px 12px;
+  color: var(--prose-details-summary);
+  transition: background-color var(--prose-duration) var(--prose-ease-out);
+}
+
+.prose .details-summary:hover {
+  background-color: var(--prose-surface-hover);
+}
+
+.prose .details-summary::-webkit-details-marker {
+  display: none;
+}
+
+.prose .details-icon {
+  color: var(--prose-details-marker);
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  transition: 
+    transform 0.2s var(--prose-ease-out), 
+    color var(--prose-duration) var(--prose-ease-out);
+}
+
+.prose .details-summary:hover .details-icon,
+.prose .details[open] .details-icon {
+  color: var(--prose-fg-strong);
+}
+
+.prose .details[open] .details-icon {
+  transform: rotate(90deg);
+}
+
+.prose .details-content {
+  padding: 0 12px 10px;
+  border-top: 1px solid var(--prose-details-border);
+  color: var(--prose-fg);
+}
+
+.prose .details-content ul,
+.prose .details-content ol,
+.prose .details-content p {
+  @apply text-body-16;
+}
+
+.prose .details-content > *:first-child {
+  margin-top: 10px !important;
+}
+
+.prose .details-content > *:last-child {
+  margin-bottom: 0 !important;
+}
+
+@media (min-width: 768px) {
+  .prose .details {
+    margin: 2rem 0;
+  }
+
+  .prose .details-summary {
+    @apply text-heading-16;
+    padding: 12px 14px;
+  }
+
+  .prose .details-icon {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  .prose .details-content {
+    padding: 0 14px 12px;
+  }
+
+  .prose .details-content ul,
+  .prose .details-content ol,
+  .prose .details-content p {
+    @apply text-body-16;
+  }
+
+  .prose .details-content > *:first-child {
+    margin-top: 12px !important;
+  }
+}

@@ -1,0 +1,225 @@
+/* src/styles/prose/components/misc.css */
+
+.prose sub,
+.prose sup {
+  font-size: 0.75em;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+  margin: 0 0.05em;
+  color: var(--prose-fg-dim);
+  transition: color var(--prose-duration) var(--prose-ease-out);
+}
+
+.prose sup { top: -0.5em; }
+.prose sub { bottom: -0.25em; }
+
+.prose sup a {
+  text-decoration: none;
+  color: inherit;
+  transition: color var(--prose-duration) var(--prose-ease-out);
+}
+
+.prose sup a:hover {
+  color: var(--prose-link-hover);
+}
+
+.prose sup:has(a[href^="#fn"]) {
+  cursor: pointer;
+  scroll-margin-top: 80px;
+}
+
+.prose small {
+  color: var(--prose-fg-subtle);
+  display: inline-block;
+}
+
+.prose figcaption small,
+.prose aside small,
+.prose footer small {
+  color: var(--prose-fg-dim);
+}
+
+time {
+  @apply text-numeric-14;
+}
+
+.prose mark {
+  background: var(--prose-highlight-bg);
+  color: var(--prose-highlight-text);
+  padding: 0.1em 0.25em;
+  border-radius: var(--prose-radius-xs);
+}
+
+.prose abbr[title] {
+  text-decoration: none;
+  border-bottom: 1px dashed var(--prose-border-strong);
+  cursor: help;
+  font-feature-settings: "calt" 1;
+  transition: 
+    border-color var(--prose-duration) var(--prose-ease-out), 
+    color var(--prose-duration) var(--prose-ease-out);
+}
+
+.prose abbr[title]:hover {
+  border-bottom-color: var(--prose-fg-strong);
+  color: var(--prose-fg-strong);
+}
+
+.prose abbr[title]:active {
+  border-bottom-style: solid;
+  transition: none;
+}
+
+.prose cite {
+  font-style: italic;
+  color: var(--prose-fg-muted);
+}
+
+.prose ins {
+  color: var(--prose-fg-strong);
+  text-decoration-color: var(--prose-border-strong);
+}
+
+.prose q {
+  @apply text-body-16;
+  quotes: "“" "”" "‘" "’";
+  color: var(--prose-fg-muted);
+}
+
+.prose q::before {
+  content: open-quote;
+  margin-left: 0.125rem;
+  color: var(--prose-border-strong);
+}
+
+.prose q::after {
+  content: close-quote;
+  margin-right: 0.125rem;
+  color: var(--prose-border-strong);
+}
+
+.prose dl {
+  margin: 20px 0;
+}
+
+.prose dl :last-child {
+  margin-bottom: 0;
+}
+
+.prose dt {
+  font-weight: 600;
+  color: var(--prose-fg-strong);
+  letter-spacing: -0.01em;
+  margin-top: 16px;
+}
+
+.prose dt:first-child {
+  margin-top: 0;
+}
+
+.prose dd {
+  margin-left: 20px;
+  margin-top: 4px;
+  color: var(--prose-fg-subtle);
+}
+
+.prose dt + dd {
+  margin-top: 0;
+}
+
+.prose address {
+  @apply text-body-14;
+  font-style: normal;
+  color: var(--prose-fg-subtle);
+  background-color: var(--prose-surface);
+  padding: 0.75rem 1rem;
+  border-radius: var(--prose-radius-md);
+  border: 1px solid var(--prose-border);
+  margin: 1.5rem 0;
+  transition: border-color var(--prose-duration) var(--prose-ease-out);
+}
+
+.prose address:hover {
+  border-color: var(--prose-border-strong);
+}
+
+.prose address a {
+  color: var(--prose-link);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--prose-duration) var(--prose-ease-out);
+}
+
+.prose address a:hover {
+  border-bottom-color: var(--prose-link-underline-hover);
+}
+
+.prose address .contact-label {
+  font-weight: 600;
+  color: var(--prose-fg-strong);
+}
+
+.prose samp {
+  @apply text-code-16;
+  padding: 0.15rem 0.35rem;
+  background-color: var(--prose-code-bg);
+  color: var(--prose-code-text);
+  border-radius: var(--prose-radius-sm);
+  border: 1px solid var(--prose-code-border);
+  display: inline-block;
+}
+
+.prose hr {
+  border: none;
+  border-top: 1px solid var(--prose-hr);
+  margin: 2rem 0;
+}
+
+.prose hr.ornamental {
+  border: none;
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.prose hr.ornamental::before {
+  content: '· · ·';
+  color: var(--prose-border-strong);
+  letter-spacing: 0.5em;
+  font-size: 14px;
+}
+
+@media (max-width: 767px) {
+  .prose mark {
+    padding: 0.1em 0.2em;
+  }
+
+  .prose abbr[title] {
+    font-size: 14px;
+  }
+
+  .prose hr {
+    margin: 2rem 0;
+  }
+
+  .prose address {
+    @apply text-body-13;
+    padding: 0.625rem 0.875rem;
+    margin: 1.25rem 0;
+  }
+  .prose samp {
+    @apply text-code-14;
+  }
+}
+
+@media (min-width: 768px) {
+  .prose mark {
+    padding: 0.1em 0.25em;
+  }
+
+  .prose address {
+    @apply text-body-14;
+    padding: 0.75rem 1rem;
+    margin: 1.5rem 0;
+  }
+}

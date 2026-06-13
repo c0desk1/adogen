@@ -1,0 +1,77 @@
+---
+// src/layouts/DocsLayout.astro
+import { 
+  SITE, 
+  type buildMeta as BuildMetaFn 
+} from '@/consts';
+
+import Head from '@/components/Head.astro';
+import Container from '@/components/ui/Container.astro';
+import Footer from '@/components/Footer.astro';
+import DocsNavbar from '@/components/docs/DocsNavbar.astro';
+import DocsSidebar from '@/components/docs/DocsSidebar.astro';
+import ScrollToTop from '@/components/docs/ScrollToTop.astro';
+import DocsAskAi from '@/components/docs/DocsAskAi.astro';
+
+interface Props {
+  meta?: Partial<ReturnType<typeof BuildMetaFn>>;
+  schema?: object | object[];
+  isHome?: boolean;
+  canonical?: string;
+  hideHeader?: boolean;
+  hideFooter?: boolean;
+  sidebarProps: any;
+}
+
+const { 
+  meta, 
+  schema,
+  isHome = false,
+  canonical,
+  hideHeader = false,
+  hideFooter = false,
+  sidebarProps
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang={SITE.lang} dir={SITE.dir}>
+  <Head {meta} {schema} {isHome} {canonical}>
+    <script is:inline>
+      const getTheme = () => {
+        if (typeof localStorage !== 'undefined' && localStorage.getItem('adogen-theme')) {
+          return localStorage.getItem('adogen-theme');
+        }
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      };
+
+      const theme = getTheme();
+      
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.style.colorScheme = 'dark';
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.style.colorScheme = 'light';
+      }
+    </script>
+  </Head>
+  <body>
+    <a href="#main-content" class="sr-only focus:not-sr-only fixed hidden top-3 left-3 z-50 px-4 py-2 text-body-20 bg-(--accent) text-(--accent-fg) rounded-md shadow-lg">
+      Skip to content
+    </a>    
+    {!hideHeader && (<DocsNavbar />)}
+    <Container size="full" class="mx-auto w-full px-0! grid grid-cols-1 lg:grid-cols-[16rem_minmax(0,1fr)_16rem] gap-6">
+      <aside class="flex-col hidden lg:block lg:sticky lg:top-(--header-height) lg:h-[calc(100vh-54px)] lg:overflow-y-auto lg:py-6 lg:px-4 border-r border-(--border-subtle)">
+        {sidebarProps && <DocsSidebar {...sidebarProps} />}
+      </aside>
+      <main id="main-content" class="min-w-0 w-full">
+        <slot />
+      </main>
+      <aside class="flex-col hidden lg:block lg:sticky lg:top-(--header-height) lg:h-[calc(100vh-54px)] lg:overflow-y-auto lg:py-4 lg:px-4">
+        <slot name="right" />
+      </aside>
+    </Container>
+    {!hideFooter && (<Footer />)}
+  </body>
+</html>

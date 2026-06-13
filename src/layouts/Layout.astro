@@ -1,0 +1,64 @@
+---
+// src/layouts/Layout.astro
+import { 
+  SITE, 
+  type buildMeta as BuildMetaFn 
+} from '@/consts';
+
+import Head from '../components/Head.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+interface Props {
+  meta?: Partial<ReturnType<typeof BuildMetaFn>>;
+  schema?: object | object[];
+  isHome?: boolean;
+  canonical?: string;
+  hideHeader?: boolean;
+  hideFooter?: boolean;
+}
+
+const {
+  meta,
+  schema,
+  isHome = false,
+  canonical,
+  hideHeader = false,
+  hideFooter = false,
+} = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang={SITE.lang} dir={SITE.dir}>
+  <Head {meta} {schema} {isHome} {canonical}>
+    <script is:inline>
+      const getTheme = () => {
+        if (typeof localStorage !== 'undefined' && localStorage.getItem('adogen-theme')) {
+          return localStorage.getItem('adogen-theme');
+        }
+        return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      };
+
+      const theme = getTheme();
+      
+      if (theme === 'dark') {
+        document.documentElement.classList.add('dark');
+        document.documentElement.style.colorScheme = 'dark';
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.style.colorScheme = 'light';
+      }
+    </script>
+  </Head>
+  <body>
+    <a href="#main-content" class="sr-only focus:not-sr-only fixed top-3 left-3 z-50 px-4! py-2 text-body-20 bg-(--accent) text-(--accent-fg) rounded-md shadow-lg focus:outline-none focus:ring-2 focus:ring-(--accent-ring)">
+      Skip to content
+    </a>
+    {!hideHeader && (<Header />)}
+
+    <main id="main-content" class="flex flex-1 min-h-[calc(100vh-var(--header-height))]">
+      <slot />
+    </main>
+    {!hideFooter && (<Footer />)}
+  </body>
+</html>
