@@ -39,8 +39,7 @@ export default defineConfig({
   site: SITE.url,
   base: "/",
   trailingSlash: 'never',
-  output: "server",
-  adapter: cloudflare(),
+  output: "static",
   integrations: [
     react(), 
     mdx()
@@ -48,14 +47,6 @@ export default defineConfig({
  
   vite: {
     plugins: [tailwindcss()]
-  },
-
-  prefetch: {
-    defaultStrategy: 'viewport',
-  },
-  
-  experimental: {
-    clientPrerender: true,
   },
 
   build: {
